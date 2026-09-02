@@ -103,6 +103,27 @@
     font-size: 12px;
     color: var(--muted);
   }
+  .ac-wrap { position: relative; }
+  .ac-list {
+    position: absolute;
+    left: 0; right: 0; top: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    z-index: 20;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+  }
+  .ac-list.open { display: block; }
+  .ac-item {
+    padding: 12px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border-top: 1px solid #f0f0f0;
+  }
+  .ac-item:hover, .ac-item.active { background: #f3f3f3; }
 </style>
 </head>
 <body>
@@ -117,11 +138,17 @@
 
     <form id="booking-form">
       <label for="pickup">Adresse de prise en charge</label>
-      <input id="pickup" name="pickupAddress" type="text" required autocomplete="off" placeholder="Ex: 12 rue de Paris" />
+      <div class="ac-wrap">
+        <input id="pickup" name="pickupAddress" type="text" required autocomplete="off" placeholder="Tapez l'adresse..." />
+        <div class="ac-list" id="pickup-list"></div>
+      </div>
       <button type="button" class="locate" id="locate-btn">📍 Utiliser ma position</button>
 
       <label for="destination">Destination</label>
-      <input id="destination" name="destinationAddress" type="text" required autocomplete="off" placeholder="Ex: Gare Centrale" />
+      <div class="ac-wrap">
+        <input id="destination" name="destinationAddress" type="text" required autocomplete="off" placeholder="Tapez l'adresse..." />
+        <div class="ac-list" id="destination-list"></div>
+      </div>
 
       <label for="phone">Numéro de téléphone</label>
       <input id="phone" name="clientPhone" type="tel" required autocomplete="tel" placeholder="Ex: 0612345678" />
@@ -151,6 +178,74 @@
     msg.textContent = text;
     msg.className = "msg " + kind;
   }
+
+  // --- Autocomplétion d'adresses (Photon / OpenStreetMap, gratuit) ---
+  function formatAddress(p) {
+    const parts = [];
+    const line1 = [p.housenumber, p.street || p.name].filter(Boolean).join(" ");
+    if (line1) parts.push(line1);
+    else if (p.name) parts.push(p.name);
+    if (p.city) parts.push(p.city);
+    if (p.postcode) parts.push(p.postcode);
+    return parts.join(", ");
+  }
+
+  function setupAutocomplete(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    let timer = null;
+    let justPicked = false;
+
+    async function fetchSuggestions(q) {
+      const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(q) +
+                  "&limit=6&lang=fr&lat=45.53&lon=-73.51";
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const seen = new Set();
+        const out = [];
+        for (const f of data.features || []) {
+          const label = formatAddress(f.properties || {});
+          if (!label || seen.has(label)) continue;
+          seen.add(label);
+          out.push(label);
+        }
+        return out;
+      } catch { return []; }
+    }
+
+    function render(items) {
+      list.innerHTML = "";
+      if (!items.length) { list.classList.remove("open"); return; }
+      for (const label of items) {
+        const div = document.createElement("div");
+        div.className = "ac-item";
+        div.textContent = "📍 " + label;
+        div.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          justPicked = true;
+          input.value = label;
+          list.classList.remove("open");
+        });
+        list.appendChild(div);
+      }
+      list.classList.add("open");
+    }
+
+    input.addEventListener("input", () => {
+      if (justPicked) { justPicked = false; return; }
+      const q = input.value.trim();
+      if (timer) clearTimeout(timer);
+      if (q.length < 3) { list.classList.remove("open"); return; }
+      timer = setTimeout(async () => {
+        render(await fetchSuggestions(q));
+      }, 350);
+    });
+    input.addEventListener("blur", () => setTimeout(() => list.classList.remove("open"), 150));
+  }
+
+  setupAutocomplete("pickup", "pickup-list");
+  setupAutocomplete("destination", "destination-list");
 
   locateBtn.addEventListener("click", () => {
     if (!navigator.geolocation) {

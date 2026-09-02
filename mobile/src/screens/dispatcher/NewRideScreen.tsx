@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import AddressInput from "../../components/AddressInput";
 import type { Driver } from "../../types";
 
 export default function NewRideScreen() {
@@ -86,14 +87,10 @@ export default function NewRideScreen() {
         />
 
         <Text style={styles.label}>Adresse de prise en charge</Text>
-        <TextInput style={styles.input} value={pickupAddress} onChangeText={setPickupAddress} />
+        <AddressInput value={pickupAddress} onChangeText={setPickupAddress} placeholder="Tapez l'adresse..." />
 
         <Text style={styles.label}>Destination</Text>
-        <TextInput
-          style={styles.input}
-          value={destinationAddress}
-          onChangeText={setDestinationAddress}
-        />
+        <AddressInput value={destinationAddress} onChangeText={setDestinationAddress} placeholder="Tapez l'adresse..." />
 
         <Text style={styles.label}>Notes (optionnel)</Text>
         <TextInput style={styles.input} value={notes} onChangeText={setNotes} multiline />
