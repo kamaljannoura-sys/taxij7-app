@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DISPATCHER
+  DRIVER
+}
+
+enum DriverStatus {
+  AVAILABLE
+  UNAVAILABLE
+  ON_RIDE
+}
+
+enum RideStatus {
+  PENDING
+  ASSIGNED
+  ACCEPTED
+  EN_ROUTE
+  ARRIVED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  driverProfile DriverProfile?
+  assignedRides Ride[]         @relation("AssignedDriver")
+  createdRides  Ride[]         @relation("CreatedByDispatcher")
+}
+
+model DriverProfile {
+  id        String       @id @default(cuid())
+  userId    String       @unique
+  user      User         @relation(fields: [userId], references: [id])
+  status    DriverStatus @default(UNAVAILABLE)
+  vehicle   String?
+  plate     String?
+  lat       Float?
+  lng       Float?
+  locationUpdatedAt DateTime?
+  updatedAt DateTime     @updatedAt
+}
+
+model Ride {
+  id                String     @id @default(cuid())
+  clientName        String
+  clientPhone       String
+  pickupAddress     String
+  destinationAddress String
+  notes             String?
+  status            RideStatus @default(PENDING)
+
+  dispatcherId String?
+  dispatcher   User?   @relation("CreatedByDispatcher", fields: [dispatcherId], references: [id])
+
+  driverId String?
+  driver   User?   @relation("AssignedDriver", fields: [driverId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

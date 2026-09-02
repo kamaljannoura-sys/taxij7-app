@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+*.db
+*.db-journal
+.expo/
+web-build/
+tunnel/
+mobile/dist/
+.DS_Store
+server/scripts/private-seed.js
