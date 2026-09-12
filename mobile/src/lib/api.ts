@@ -32,6 +32,11 @@ export const api = {
 
   getDrivers: (token: string) => request<Driver[]>("/drivers", { token }),
 
+  createDriver: (
+    token: string,
+    body: { name: string; phone: string; password: string; vehicle?: string; plate?: string }
+  ) => request<Driver>("/drivers", { method: "POST", token, body }),
+
   updateMyStatus: (token: string, status: DriverStatus) =>
     request("/drivers/me/status", { method: "PATCH", token, body: { status } }),
 

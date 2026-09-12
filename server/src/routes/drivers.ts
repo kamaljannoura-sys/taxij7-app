@@ -1,4 +1,5 @@
 import { Router } from "express";
+import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
@@ -33,6 +34,53 @@ driversRouter.get("/", requireRole("DISPATCHER"), async (_req, res) => {
       completedRides: _count.assignedRides,
     }))
   );
+});
+
+const createDriverSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  phone: z.string().trim().min(6).max(30),
+  password: z.string().min(4).max(100),
+  vehicle: z.string().trim().max(100).optional(),
+  plate: z.string().trim().max(20).optional(),
+});
+
+// Dispatcher: create a new driver account
+driversRouter.post("/", requireRole("DISPATCHER"), async (req, res) => {
+  const parsed = createDriverSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Informations chauffeur invalides" });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { phone: parsed.data.phone } });
+  if (existing) {
+    return res.status(409).json({ error: "Un compte existe déjà avec ce numéro" });
+  }
+
+  const passwordHash = await bcrypt.hash(parsed.data.password, 10);
+  const driver = await prisma.user.create({
+    data: {
+      name: parsed.data.name,
+      phone: parsed.data.phone,
+      passwordHash,
+      role: "DRIVER",
+      driverProfile: {
+        create: {
+          vehicle: parsed.data.vehicle,
+          plate: parsed.data.plate,
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      role: true,
+      createdAt: true,
+      driverProfile: true,
+    },
+  });
+
+  res.status(201).json({ ...driver, completedRides: 0 });
 });
 
 const statusSchema = z.object({
