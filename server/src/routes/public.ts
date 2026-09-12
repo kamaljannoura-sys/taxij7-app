@@ -20,6 +20,8 @@ const bookingSchema = z.object({
   pickupAddress: z.string().trim().min(1).max(200),
   destinationAddress: z.string().trim().min(1).max(200),
   notes: z.string().trim().max(500).optional(),
+  vehicleType: z.enum(["STANDARD", "VAN", "PREMIUM"]).default("STANDARD"),
+  estimatedPrice: z.coerce.number().min(0).max(2000).optional(),
 });
 
 // Client public : demande de course depuis le site web, sans authentification
@@ -37,6 +39,8 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
       destinationAddress: parsed.data.destinationAddress,
       notes: parsed.data.notes,
       status: "PENDING",
+      vehicleType: parsed.data.vehicleType,
+      estimatedPrice: parsed.data.estimatedPrice,
     },
     include: rideInclude,
   });
@@ -64,6 +68,8 @@ publicRouter.get("/track/:id", trackLimiter, async (req, res) => {
       pickupAddress: true,
       destinationAddress: true,
       createdAt: true,
+      vehicleType: true,
+      estimatedPrice: true,
       driver: {
         select: {
           name: true,

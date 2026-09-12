@@ -28,6 +28,12 @@ enum RideStatus {
   CANCELLED
 }
 
+enum VehicleType {
+  STANDARD
+  VAN
+  PREMIUM
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String
@@ -62,6 +68,8 @@ model Ride {
   destinationAddress String
   notes             String?
   status            RideStatus @default(PENDING)
+  vehicleType       VehicleType @default(STANDARD)
+  estimatedPrice    Float?
 
   dispatcherId String?
   dispatcher   User?   @relation("CreatedByDispatcher", fields: [dispatcherId], references: [id])

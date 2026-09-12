@@ -115,6 +115,11 @@
     ARRIVED: "Arrivé",
     COMPLETED: "Terminé",
   };
+  const VEHICLE_LABEL = {
+    STANDARD: "🚗 Standard",
+    VAN: "🚐 Van",
+    PREMIUM: "⭐ Premium",
+  };
 
   let map = null;
   let pickupMarker = null;
@@ -161,6 +166,8 @@
       '<div class="row"><span class="k">Statut</span><span class="v">' + STATUS_LABEL[ride.status] + '</span></div>' +
       '<div class="row"><span class="k">Départ</span><span class="v">' + ride.pickupAddress + '</span></div>' +
       '<div class="row"><span class="k">Destination</span><span class="v">' + ride.destinationAddress + '</span></div>' +
+      '<div class="row"><span class="k">Véhicule</span><span class="v">' + (VEHICLE_LABEL[ride.vehicleType] || ride.vehicleType) + '</span></div>' +
+      (ride.estimatedPrice != null ? '<div class="row"><span class="k">Prix estimé</span><span class="v">~' + Math.round(ride.estimatedPrice) + ' $</span></div>' : '') +
       (ride.driver ? '<div class="row"><span class="k">Chauffeur</span><span class="v">' + ride.driver.name + '</span></div>' : '') +
       '</div>';
 

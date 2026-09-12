@@ -12,7 +12,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
 import { getSocket } from "../../lib/socket";
-import type { Driver, Ride, RideStatus } from "../../types";
+import type { Driver, Ride, RideStatus, VehicleType } from "../../types";
 
 const STATUS_LABEL: Record<RideStatus, string> = {
   PENDING: "En attente",
@@ -32,6 +32,12 @@ const STATUS_COLOR: Record<RideStatus, string> = {
   ARRIVED: "#6a1b9a",
   COMPLETED: "#2e7d32",
   CANCELLED: "#c62828",
+};
+
+const VEHICLE_LABEL: Record<VehicleType, string> = {
+  STANDARD: "🚗 Standard",
+  VAN: "🚐 Van",
+  PREMIUM: "⭐ Premium",
 };
 
 export default function RideHistoryScreen() {
@@ -120,6 +126,10 @@ export default function RideHistoryScreen() {
             </View>
             <Text style={styles.meta}>📍 {item.pickupAddress}</Text>
             <Text style={styles.meta}>🎯 {item.destinationAddress}</Text>
+            <Text style={styles.meta}>
+              {VEHICLE_LABEL[item.vehicleType]}
+              {item.estimatedPrice != null ? ` · ~${item.estimatedPrice.toFixed(0)} $` : ""}
+            </Text>
             {item.driver && <Text style={styles.meta}>🚕 {item.driver.name}</Text>}
             {item.status === "PENDING" && (
               <TouchableOpacity style={styles.assignButton} onPress={() => assign(item)}>
