@@ -33,6 +33,7 @@ export interface Driver {
   name: string;
   phone: string;
   driverProfile: DriverProfile | null;
+  completedRides: number;
 }
 
 export interface Ride {
