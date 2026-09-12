@@ -20,6 +20,10 @@ app.get("/driver", (_req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "driver.html"));
 });
 
+app.get("/drivers-map", (_req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "drivers-map.html"));
+});
+
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.use("/auth", authRouter);
