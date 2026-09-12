@@ -7,6 +7,7 @@ import { authRouter } from "./routes/auth";
 import { driversRouter } from "./routes/drivers";
 import { ridesRouter } from "./routes/rides";
 import { publicRouter } from "./routes/public";
+import { ensureDispatcherSeeded } from "./lib/ensureDispatcher";
 import { initSockets } from "./sockets";
 
 const app = express();
@@ -34,6 +35,11 @@ const httpServer = createServer(app);
 initSockets(httpServer);
 
 const port = Number(process.env.PORT) || 4000;
-httpServer.listen(port, () => {
-  console.log(`Serveur Taxi J7 en écoute sur http://localhost:${port}`);
-});
+
+ensureDispatcherSeeded()
+  .catch((err) => console.error("Impossible de vérifier/créer le compte répartiteur:", err))
+  .finally(() => {
+    httpServer.listen(port, () => {
+      console.log(`Serveur Taxi J7 en écoute sur http://localhost:${port}`);
+    });
+  });
