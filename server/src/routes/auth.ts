@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { signToken } from "../middleware/auth";
+import { requireAuth, signToken } from "../middleware/auth";
 
 export const authRouter = Router();
 
@@ -33,6 +33,40 @@ authRouter.post("/login", async (req, res) => {
 
   const token = signToken({ id: user.id, role: user.role, name: user.name });
   return res.json({
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      driverProfile: user.driverProfile,
+    },
+  });
+});
+
+const updateMeSchema = z.object({
+  name: z.string().trim().min(1).max(100).optional(),
+  password: z.string().min(4).max(100).optional(),
+});
+
+// Changer son propre nom et/ou mot de passe (dispatcher ou chauffeur)
+authRouter.patch("/me", requireAuth, async (req, res) => {
+  const parsed = updateMeSchema.safeParse(req.body);
+  if (!parsed.success || (!parsed.data.name && !parsed.data.password)) {
+    return res.status(400).json({ error: "Rien à mettre à jour" });
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.user!.id },
+    data: {
+      ...(parsed.data.name ? { name: parsed.data.name } : {}),
+      ...(parsed.data.password ? { passwordHash: await bcrypt.hash(parsed.data.password, 10) } : {}),
+    },
+    include: { driverProfile: true },
+  });
+
+  const token = signToken({ id: user.id, role: user.role, name: user.name });
+  res.json({
     token,
     user: {
       id: user.id,

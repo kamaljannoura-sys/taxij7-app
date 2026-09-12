@@ -2,7 +2,7 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { broadcastRideUpdate, rideInclude } from "../lib/rideHelpers";
+import { autoAssignRide, broadcastRideUpdate, rideInclude } from "../lib/rideHelpers";
 
 export const publicRouter = Router();
 
@@ -18,6 +18,8 @@ const bookingSchema = z.object({
   clientName: z.string().trim().min(1).max(100).optional(),
   clientPhone: z.string().trim().min(6).max(30),
   pickupAddress: z.string().trim().min(1).max(200),
+  pickupLat: z.coerce.number().min(-90).max(90).optional(),
+  pickupLng: z.coerce.number().min(-180).max(180).optional(),
   destinationAddress: z.string().trim().min(1).max(200),
   notes: z.string().trim().max(500).optional(),
   vehicleType: z.enum(["STANDARD", "VAN", "PREMIUM"]).default("STANDARD"),
@@ -36,6 +38,8 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
       clientName: parsed.data.clientName || "Client web",
       clientPhone: parsed.data.clientPhone,
       pickupAddress: parsed.data.pickupAddress,
+      pickupLat: parsed.data.pickupLat,
+      pickupLng: parsed.data.pickupLng,
       destinationAddress: parsed.data.destinationAddress,
       notes: parsed.data.notes,
       status: "PENDING",
@@ -45,9 +49,12 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
     include: rideInclude,
   });
 
-  broadcastRideUpdate(ride, "ride:new", ride);
+  const assigned = await autoAssignRide(ride.id, parsed.data.pickupLat, parsed.data.pickupLng);
+  if (!assigned) {
+    broadcastRideUpdate(ride, "ride:new", ride);
+  }
 
-  res.status(201).json({ id: ride.id });
+  res.status(201).json({ id: (assigned ?? ride).id });
 });
 
 const trackLimiter = rateLimit({
