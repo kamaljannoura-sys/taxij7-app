@@ -30,6 +30,9 @@ export const api = {
       body: { phone, password },
     }),
 
+  updateMe: (token: string, body: { name?: string; password?: string }) =>
+    request<{ token: string; user: AuthUser }>("/auth/me", { method: "PATCH", token, body }),
+
   getDrivers: (token: string) => request<Driver[]>("/drivers", { token }),
 
   createDriver: (
