@@ -31,6 +31,19 @@ ridesRouter.get("/mine", requireRole("DRIVER"), async (req, res) => {
   res.json(rides);
 });
 
+// Driver: list available rides (pending)
+ridesRouter.get("/available", requireRole("DRIVER"), async (_req, res) => {
+  const rides = await prisma.ride.findMany({
+    where: {
+      status: "PENDING",
+      driverId: null,
+    },
+    include: rideInclude,
+    orderBy: { createdAt: "desc" },
+  });
+  res.json(rides);
+});
+
 const createRideSchema = z.object({
   clientName: z.string().min(1),
   clientPhone: z.string().min(1),

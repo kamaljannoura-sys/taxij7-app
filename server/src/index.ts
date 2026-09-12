@@ -15,6 +15,11 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+app.get("/driver", (_req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "driver.html"));
+});
+
 app.use("/auth", authRouter);
 app.use("/drivers", driversRouter);
 app.use("/rides", ridesRouter);

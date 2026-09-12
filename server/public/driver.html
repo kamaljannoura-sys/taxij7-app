@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tableau de bord - Chauffeur Taxi J7</title>
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e2e0dc;
+    --accent: #1a1a1a;
+    --accent-ink: #ffffff;
+    --success: #1e7d34;
+    --error: #c62828;
+    --warning: #f57c00;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Login Screen */
+  .login-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .login-screen.hidden { display: none; }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .brand .emoji { font-size: 28px; }
+  .brand h1 { font-size: 20px; margin: 0; font-weight: 700; }
+
+  h2 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; font-weight: 800; }
+  .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin: 16px 0 6px;
+  }
+
+  input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--card);
+    color: var(--ink);
+    font-family: inherit;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  button {
+    width: 100%;
+    margin-top: 26px;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  .msg {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: none;
+  }
+
+  .msg.success { display: block; background: #e8f5e9; color: var(--success); }
+  .msg.error { display: block; background: #fdecea; color: var(--error); }
+
+  /* Dashboard Screen */
+  .dashboard-screen {
+    display: none;
+    padding: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .dashboard-screen.active { display: block; }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--card);
+    border-radius: 10px;
+  }
+
+  .driver-info h2 { margin: 0; font-size: 20px; }
+  .driver-info p { margin: 4px 0 0; color: var(--muted); }
+
+  .logout-btn {
+    width: auto;
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 14px;
+    background: var(--error);
+  }
+
+  .rides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .ride-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .ride-card.accepted {
+    border-color: var(--success);
+    background: #f1f8f4;
+  }
+
+  .ride-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .ride-status.pending {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .ride-status.accepted {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .ride-status.completed {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+
+  .ride-address {
+    margin: 12px 0;
+    line-height: 1.5;
+  }
+
+  .ride-address label {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .ride-address p {
+    margin: 4px 0 0;
+    font-weight: 600;
+  }
+
+  .ride-details {
+    display: flex;
+    gap: 16px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  .ride-details div {
+    flex: 1;
+  }
+
+  .ride-details label {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .ride-details p {
+    margin: 4px 0 0;
+  }
+
+  .ride-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .ride-actions button {
+    flex: 1;
+    margin: 0;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .accept-btn {
+    background: var(--success);
+  }
+
+  .reject-btn {
+    background: var(--error);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--muted);
+  }
+
+  .empty-state p {
+    margin: 8px 0;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px 24px;
+  }
+</style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-card">
+      <div class="brand">
+        <span class="emoji">🚕</span>
+        <h1>Taxi J7</h1>
+      </div>
+
+      <h2>Espace Chauffeur</h2>
+      <p class="subtitle">Connectez-vous pour gérer vos courses</p>
+
+      <form id="login-form">
+        <label for="phone">Numéro de téléphone</label>
+        <input id="phone" type="tel" required autocomplete="tel" placeholder="Ex: 0612345678" />
+
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" required placeholder="Votre mot de passe" />
+
+        <button type="submit" id="login-btn">Se connecter</button>
+      </form>
+
+      <div class="msg" id="login-msg"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div class="dashboard-screen" id="dashboard-screen">
+    <div class="dashboard-header">
+      <div class="driver-info">
+        <h2 id="driver-name">Chauffeur</h2>
+        <p id="driver-status">Connecté</p>
+      </div>
+      <button class="logout-btn" id="logout-btn">Déconnexion</button>
+    </div>
+
+    <div id="rides-container">
+      <div class="loading">Chargement des courses...</div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+
+    let token = localStorage.getItem('driver_token');
+    let currentDriver = null;
+
+    const loginScreen = document.getElementById('login-screen');
+    const dashboardScreen = document.getElementById('dashboard-screen');
+    const loginForm = document.getElementById('login-form');
+    const loginMsg = document.getElementById('login-msg');
+    const logoutBtn = document.getElementById('logout-btn');
+    const ridesContainer = document.getElementById('rides-container');
+
+    function showLoginMsg(text, kind) {
+      loginMsg.textContent = text;
+      loginMsg.className = 'msg ' + kind;
+    }
+
+    function showScreen(screen) {
+      loginScreen.classList.toggle('hidden', screen !== 'login');
+      dashboardScreen.classList.toggle('active', screen === 'dashboard');
+    }
+
+    // Check if already logged in
+    if (token) {
+      showScreen('dashboard');
+      loadDriver();
+      loadRides();
+    } else {
+      showScreen('login');
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+
+      const loginBtn = document.getElementById('login-btn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Connexion en cours...';
+      loginMsg.className = 'msg';
+
+      try {
+        const res = await fetch(API_URL + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, password })
+        });
+
+        const body = await res.json();
+
+        if (!res.ok) {
+          throw new Error(body.error || 'Erreur de connexion');
+        }
+
+        if (body.user.role !== 'DRIVER') {
+          throw new Error('Ce compte n\'est pas un compte chauffeur');
+        }
+
+        token = body.token;
+        currentDriver = body.user;
+        localStorage.setItem('driver_token', token);
+
+        showScreen('dashboard');
+        document.getElementById('driver-name').textContent = currentDriver.name || 'Chauffeur';
+        loadRides();
+
+      } catch (err) {
+        showLoginMsg(err.message || 'Erreur de connexion', 'error');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Se connecter';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('driver_token');
+      token = null;
+      currentDriver = null;
+      loginForm.reset();
+      showScreen('login');
+      loginMsg.className = 'msg';
+    });
+
+    async function loadDriver() {
+      try {
+        const res = await fetch(API_URL + '/drivers/me', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+          currentDriver = await res.json();
+          document.getElementById('driver-name').textContent = currentDriver.name || 'Chauffeur';
+        }
+      } catch (err) {
+        console.error('Erreur chargement profil:', err);
+      }
+    }
+
+    async function loadRides() {
+      try {
+        ridesContainer.innerHTML = '<div class="loading">Chargement des courses...</div>';
+
+        const myRes = await fetch(API_URL + '/rides/mine', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        const availRes = await fetch(API_URL + '/rides/available', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!myRes.ok || !availRes.ok) {
+          if (myRes.status === 401 || availRes.status === 401) {
+            localStorage.removeItem('driver_token');
+            token = null;
+            showScreen('login');
+            return;
+          }
+          throw new Error('Erreur lors du chargement des courses');
+        }
+
+        const myRides = await myRes.json();
+        const availableRides = await availRes.json();
+        const allRides = [...myRides, ...availableRides];
+
+        renderRides(allRides);
+
+      } catch (err) {
+        ridesContainer.innerHTML = '<div class="empty-state"><p>❌ Erreur: ' + err.message + '</p></div>';
+      }
+    }
+
+    function renderRides(rides) {
+      if (!rides || rides.length === 0) {
+        ridesContainer.innerHTML = '<div class="empty-state"><p>📍 Aucune course disponible</p><p style="font-size: 12px;">Les courses apparaîtront ici.</p></div>';
+        return;
+      }
+
+      ridesContainer.innerHTML = '<div class="rides-grid">' +
+        rides.map(ride => `
+          <div class="ride-card ${ride.status === 'ASSIGNED' ? 'accepted' : ''}">
+            <span class="ride-status ${ride.status.toLowerCase()}">${ride.status}</span>
+
+            <div class="ride-address">
+              <label>📍 Départ</label>
+              <p>${ride.pickupAddress}</p>
+            </div>
+
+            <div class="ride-address">
+              <label>🎯 Destination</label>
+              <p>${ride.destinationAddress}</p>
+            </div>
+
+            <div class="ride-details">
+              <div>
+                <label>Client</label>
+                <p>${ride.clientName || ride.clientPhone}</p>
+              </div>
+              <div>
+                <label>Téléphone</label>
+                <p>${ride.clientPhone}</p>
+              </div>
+            </div>
+
+            ${ride.notes ? '<div class="ride-address"><label>📝 Notes</label><p>' + ride.notes + '</p></div>' : ''}
+
+            ${ride.status === 'PENDING' ? `
+              <div class="ride-actions">
+                <button class="accept-btn" onclick="acceptRide('${ride.id}')">✓ Accepter</button>
+                <button class="reject-btn" onclick="rejectRide('${ride.id}')">✗ Refuser</button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('') + '</div>';
+    }
+
+    window.acceptRide = async function(rideId) {
+      if (!confirm('Accepter cette course ?')) return;
+
+      try {
+        const res = await fetch(API_URL + '/rides/' + rideId + '/accept', {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) throw new Error('Erreur lors de l\'acceptation');
+        loadRides();
+      } catch (err) {
+        alert('Erreur: ' + err.message);
+      }
+    };
+
+    window.rejectRide = async function(rideId) {
+      if (!confirm('Refuser cette course ?')) return;
+
+      try {
+        const res = await fetch(API_URL + '/rides/' + rideId + '/decline', {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) throw new Error('Erreur lors du refus');
+        loadRides();
+      } catch (err) {
+        alert('Erreur: ' + err.message);
+      }
+    };
+
+    // Reload rides every 5 seconds
+    setInterval(loadRides, 5000);
+  </script>
+</body>
+</html>
