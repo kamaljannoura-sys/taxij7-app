@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { getIO } from "../sockets";
 import { broadcastRideUpdate, rideInclude } from "../lib/rideHelpers";
+import { findClosestAvailableDriver } from "../lib/dispatchHelpers";
 
 export const ridesRouter = Router();
 
@@ -48,6 +49,8 @@ const createRideSchema = z.object({
   clientName: z.string().min(1),
   clientPhone: z.string().min(1),
   pickupAddress: z.string().min(1),
+  pickupLat: z.number().optional(),
+  pickupLng: z.number().optional(),
   destinationAddress: z.string().min(1),
   notes: z.string().optional(),
   driverId: z.string().optional(),
@@ -59,25 +62,33 @@ ridesRouter.post("/", requireRole("DISPATCHER"), async (req, res) => {
   if (!parsed.success) {
     return res.status(400).json({ error: "Données de course invalides" });
   }
-  const { driverId, ...data } = parsed.data;
+  const { driverId, pickupLat, pickupLng, ...data } = parsed.data;
+
+  let assignedDriverId: string | null | undefined = driverId;
+
+  if (!assignedDriverId && pickupLat && pickupLng) {
+    assignedDriverId = await findClosestAvailableDriver(pickupLat, pickupLng);
+  }
 
   const ride = await prisma.ride.create({
     data: {
       ...data,
+      pickupLat,
+      pickupLng,
       dispatcherId: req.user!.id,
-      driverId: driverId ?? null,
-      status: driverId ? "ASSIGNED" : "PENDING",
+      driverId: assignedDriverId ?? null,
+      status: assignedDriverId ? "ASSIGNED" : "PENDING",
     },
     include: rideInclude,
   });
 
-  if (driverId) {
+  if (assignedDriverId) {
     await prisma.driverProfile.update({
-      where: { userId: driverId },
+      where: { userId: assignedDriverId },
       data: { status: "ON_RIDE" },
     });
-    getIO().to(`driver:${driverId}`).emit("ride:new", ride);
-    getIO().to("dispatchers").emit("driver:status", { driverId, status: "ON_RIDE" });
+    getIO().to(`driver:${assignedDriverId}`).emit("ride:new", ride);
+    getIO().to("dispatchers").emit("driver:status", { driverId: assignedDriverId, status: "ON_RIDE" });
   }
   getIO().to("dispatchers").emit("ride:new", ride);
 
@@ -177,4 +188,55 @@ ridesRouter.patch("/:id/status", requireRole("DRIVER"), async (req, res) => {
 
   broadcastRideUpdate(ride, "ride:updated", ride);
   res.json(ride);
+});
+
+const closestDriversSchema = z.object({
+  pickupLat: z.number(),
+  pickupLng: z.number(),
+});
+
+ridesRouter.post("/closest-drivers", requireRole("DISPATCHER"), async (req, res) => {
+  const parsed = closestDriversSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Coordonnées de départ requises" });
+  }
+
+  const availableDrivers = await prisma.driverProfile.findMany({
+    where: {
+      status: "AVAILABLE",
+      lat: { not: null },
+      lng: { not: null },
+    },
+    include: {
+      user: {
+        select: { id: true, name: true, phone: true },
+      },
+    },
+  });
+
+  const driversWithDistance = availableDrivers.map((driver) => {
+    const R = 6371;
+    const dLat = ((driver.lat! - parsed.data.pickupLat) * Math.PI) / 180;
+    const dLng = ((driver.lng! - parsed.data.pickupLng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((parsed.data.pickupLat * Math.PI) / 180) *
+        Math.cos((driver.lat! * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return {
+      driverId: driver.userId,
+      driverName: driver.user.name,
+      driverPhone: driver.user.phone,
+      distance: Math.round(distance * 100) / 100,
+      vehicle: driver.vehicle,
+    };
+  });
+
+  driversWithDistance.sort((a, b) => a.distance - b.distance);
+
+  res.json(driversWithDistance);
 });

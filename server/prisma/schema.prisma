@@ -59,6 +59,8 @@ model Ride {
   clientName        String
   clientPhone       String
   pickupAddress     String
+  pickupLat         Float?
+  pickupLng         Float?
   destinationAddress String
   notes             String?
   status            RideStatus @default(PENDING)
