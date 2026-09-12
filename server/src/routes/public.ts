@@ -20,6 +20,8 @@ const bookingSchema = z.object({
   pickupAddress: z.string().trim().min(1).max(200),
   destinationAddress: z.string().trim().min(1).max(200),
   notes: z.string().trim().max(500).optional(),
+  vehicleType: z.enum(["STANDARD", "VAN", "PREMIUM"]).default("STANDARD"),
+  estimatedPrice: z.coerce.number().min(0).max(2000).optional(),
 });
 
 // Client public : demande de course depuis le site web, sans authentification
@@ -37,6 +39,8 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
       destinationAddress: parsed.data.destinationAddress,
       notes: parsed.data.notes,
       status: "PENDING",
+      vehicleType: parsed.data.vehicleType,
+      estimatedPrice: parsed.data.estimatedPrice,
     },
     include: rideInclude,
   });
@@ -44,4 +48,41 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
   broadcastRideUpdate(ride, "ride:new", ride);
 
   res.status(201).json({ id: ride.id });
+});
+
+const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de demandes, réessayez plus tard." },
+});
+
+// Client public : suivi d'une course par son id, sans authentification
+publicRouter.get("/track/:id", trackLimiter, async (req, res) => {
+  const ride = await prisma.ride.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      status: true,
+      pickupAddress: true,
+      destinationAddress: true,
+      createdAt: true,
+      vehicleType: true,
+      estimatedPrice: true,
+      driver: {
+        select: {
+          name: true,
+          phone: true,
+          driverProfile: { select: { lat: true, lng: true, locationUpdatedAt: true } },
+        },
+      },
+    },
+  });
+
+  if (!ride) {
+    return res.status(404).json({ error: "Course introuvable" });
+  }
+
+  res.json(ride);
 });

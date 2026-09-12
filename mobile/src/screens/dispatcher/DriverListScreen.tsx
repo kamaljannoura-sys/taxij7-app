@@ -77,6 +77,10 @@ export default function DriverListScreen() {
                       {item.driverProfile.vehicle} · {item.driverProfile.plate}
                     </Text>
                   )}
+                  <Text style={styles.meta}>
+                    🏁 {item.completedRides} course{item.completedRides > 1 ? "s" : ""} terminée
+                    {item.completedRides > 1 ? "s" : ""}
+                  </Text>
                 </View>
                 <View style={[styles.badge, { backgroundColor: STATUS_COLOR[status] }]}>
                   <Text style={styles.badgeText}>{STATUS_LABEL[status]}</Text>

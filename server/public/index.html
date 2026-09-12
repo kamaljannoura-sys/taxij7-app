@@ -124,6 +124,34 @@
     border-top: 1px solid #f0f0f0;
   }
   .ac-item:hover, .ac-item.active { background: #f3f3f3; }
+
+  .vehicles { display: flex; gap: 8px; margin-top: 6px; }
+  .vehicle {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--card);
+  }
+  .vehicle.selected { border-color: var(--ink); background: #f3f3f3; }
+  .vehicle .icon { font-size: 20px; }
+  .vehicle .name { font-size: 12px; font-weight: 700; margin-top: 2px; }
+  .vehicle .seats { font-size: 11px; color: var(--muted); }
+
+  .price-box {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    background: #f3f3f3;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .price-box.visible { display: flex; }
+  .price-box .label { font-size: 13px; color: var(--muted); }
+  .price-box .amount { font-size: 20px; font-weight: 800; }
 </style>
 </head>
 <body>
@@ -150,6 +178,30 @@
         <div class="ac-list" id="destination-list"></div>
       </div>
 
+      <label>Type de véhicule</label>
+      <div class="vehicles" id="vehicles">
+        <div class="vehicle selected" data-vehicle="STANDARD">
+          <div class="icon">🚗</div>
+          <div class="name">Standard</div>
+          <div class="seats">1-4 places</div>
+        </div>
+        <div class="vehicle" data-vehicle="VAN">
+          <div class="icon">🚐</div>
+          <div class="name">Van</div>
+          <div class="seats">5-7 places</div>
+        </div>
+        <div class="vehicle" data-vehicle="PREMIUM">
+          <div class="icon">⭐</div>
+          <div class="name">Premium</div>
+          <div class="seats">1-4 places</div>
+        </div>
+      </div>
+
+      <div class="price-box" id="price-box">
+        <span class="label">Prix estimé</span>
+        <span class="amount" id="price-amount">—</span>
+      </div>
+
       <label for="phone">Numéro de téléphone</label>
       <input id="phone" name="clientPhone" type="tel" required autocomplete="tel" placeholder="Ex: 0612345678" />
 
@@ -173,10 +225,51 @@
   const msg = document.getElementById("msg");
   const locateBtn = document.getElementById("locate-btn");
   const pickupInput = document.getElementById("pickup");
+  const priceBox = document.getElementById("price-box");
+  const priceAmount = document.getElementById("price-amount");
 
   function showMsg(text, kind) {
     msg.textContent = text;
     msg.className = "msg " + kind;
+  }
+
+  // --- Type de véhicule + prix estimé ---
+  const VEHICLE_MULTIPLIER = { STANDARD: 1, VAN: 1.35, PREMIUM: 1.7 };
+  const BASE_FARE = 5;
+  const PER_KM = 1.8;
+  let selectedVehicle = "STANDARD";
+  let pickupCoords = null;
+  let destinationCoords = null;
+
+  document.getElementById("vehicles").addEventListener("click", (e) => {
+    const card = e.target.closest(".vehicle");
+    if (!card) return;
+    document.querySelectorAll(".vehicle").forEach((el) => el.classList.remove("selected"));
+    card.classList.add("selected");
+    selectedVehicle = card.dataset.vehicle;
+    updatePriceEstimate();
+  });
+
+  function haversineKm(a, b) {
+    const R = 6371;
+    const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+    const dLon = ((b.lon - a.lon) * Math.PI) / 180;
+    const lat1 = (a.lat * Math.PI) / 180;
+    const lat2 = (b.lat * Math.PI) / 180;
+    const h =
+      Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function updatePriceEstimate() {
+    if (!pickupCoords || !destinationCoords) {
+      priceBox.classList.remove("visible");
+      return;
+    }
+    const km = haversineKm(pickupCoords, destinationCoords);
+    const price = BASE_FARE + km * PER_KM * VEHICLE_MULTIPLIER[selectedVehicle];
+    priceAmount.textContent = "~" + price.toFixed(0) + " $";
+    priceBox.classList.add("visible");
   }
 
   // --- Autocomplétion d'adresses (Photon / OpenStreetMap, gratuit) ---
@@ -190,7 +283,7 @@
     return parts.join(", ");
   }
 
-  function setupAutocomplete(inputId, listId) {
+  function setupAutocomplete(inputId, listId, onPick) {
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
     let timer = null;
@@ -206,9 +299,10 @@
         const out = [];
         for (const f of data.features || []) {
           const label = formatAddress(f.properties || {});
-          if (!label || seen.has(label)) continue;
+          const coords = f.geometry && f.geometry.coordinates;
+          if (!label || seen.has(label) || !coords) continue;
           seen.add(label);
-          out.push(label);
+          out.push({ label, lon: coords[0], lat: coords[1] });
         }
         return out;
       } catch { return []; }
@@ -217,14 +311,15 @@
     function render(items) {
       list.innerHTML = "";
       if (!items.length) { list.classList.remove("open"); return; }
-      for (const label of items) {
+      for (const item of items) {
         const div = document.createElement("div");
         div.className = "ac-item";
-        div.textContent = "📍 " + label;
+        div.textContent = "📍 " + item.label;
         div.addEventListener("mousedown", (e) => {
           e.preventDefault();
           justPicked = true;
-          input.value = label;
+          input.value = item.label;
+          onPick({ lat: item.lat, lon: item.lon });
           list.classList.remove("open");
         });
         list.appendChild(div);
@@ -234,6 +329,7 @@
 
     input.addEventListener("input", () => {
       if (justPicked) { justPicked = false; return; }
+      onPick(null);
       const q = input.value.trim();
       if (timer) clearTimeout(timer);
       if (q.length < 3) { list.classList.remove("open"); return; }
@@ -244,8 +340,14 @@
     input.addEventListener("blur", () => setTimeout(() => list.classList.remove("open"), 150));
   }
 
-  setupAutocomplete("pickup", "pickup-list");
-  setupAutocomplete("destination", "destination-list");
+  setupAutocomplete("pickup", "pickup-list", (coords) => {
+    pickupCoords = coords;
+    updatePriceEstimate();
+  });
+  setupAutocomplete("destination", "destination-list", (coords) => {
+    destinationCoords = coords;
+    updatePriceEstimate();
+  });
 
   locateBtn.addEventListener("click", () => {
     if (!navigator.geolocation) {
@@ -258,6 +360,8 @@
       (pos) => {
         const { latitude, longitude } = pos.coords;
         pickupInput.value = latitude.toFixed(5) + ", " + longitude.toFixed(5);
+        pickupCoords = { lat: latitude, lon: longitude };
+        updatePriceEstimate();
         locateBtn.disabled = false;
         locateBtn.textContent = "📍 Utiliser ma position";
       },
@@ -276,6 +380,11 @@
     submitBtn.textContent = "Envoi en cours...";
 
     const data = Object.fromEntries(new FormData(form).entries());
+    data.vehicleType = selectedVehicle;
+    if (pickupCoords && destinationCoords) {
+      const km = haversineKm(pickupCoords, destinationCoords);
+      data.estimatedPrice = Math.round(BASE_FARE + km * PER_KM * VEHICLE_MULTIPLIER[selectedVehicle]);
+    }
 
     try {
       const res = await fetch("/public/book", {
@@ -287,8 +396,10 @@
       if (!res.ok) {
         throw new Error(body.error || "Une erreur est survenue");
       }
-      showMsg("Demande envoyée ! Un chauffeur va vous être assigné sous peu.", "success");
+      showMsg("Demande envoyée ! Redirection vers le suivi de votre course...", "success");
       form.reset();
+      window.location.href = "/suivi.html?id=" + encodeURIComponent(body.id);
+      return;
     } catch (err) {
       showMsg(err.message || "Impossible d'envoyer la demande. Réessayez.", "error");
     } finally {

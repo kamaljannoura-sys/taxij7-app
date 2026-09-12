@@ -8,6 +8,7 @@ export type RideStatus =
   | "ARRIVED"
   | "COMPLETED"
   | "CANCELLED";
+export type VehicleType = "STANDARD" | "VAN" | "PREMIUM";
 
 export interface DriverProfile {
   id: string;
@@ -32,6 +33,7 @@ export interface Driver {
   name: string;
   phone: string;
   driverProfile: DriverProfile | null;
+  completedRides: number;
 }
 
 export interface Ride {
@@ -42,6 +44,8 @@ export interface Ride {
   destinationAddress: string;
   notes: string | null;
   status: RideStatus;
+  vehicleType: VehicleType;
+  estimatedPrice: number | null;
   driverId: string | null;
   driver: { id: string; name: string; phone: string } | null;
   dispatcher: { id: string; name: string } | null;

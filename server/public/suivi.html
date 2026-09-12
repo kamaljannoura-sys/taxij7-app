@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Suivi de votre course</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root {
+    --bg: #faf9f7;
+    --card: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e2e0dc;
+    --accent: #1a1a1a;
+    --success: #1e7d34;
+    --error: #c62828;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 60px;
+  }
+  .card { width: 100%; max-width: 480px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+  .brand .emoji { font-size: 28px; }
+  .brand h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  h2 { font-size: 22px; line-height: 1.25; margin: 0 0 20px; font-weight: 800; }
+
+  .steps { display: flex; justify-content: space-between; margin-bottom: 24px; }
+  .step { flex: 1; text-align: center; position: relative; }
+  .step .dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--border); margin: 0 auto 6px;
+  }
+  .step.done .dot { background: var(--accent); }
+  .step .label { font-size: 11px; color: var(--muted); }
+  .step.done .label { color: var(--ink); font-weight: 600; }
+  .step:not(:last-child)::after {
+    content: ""; position: absolute; top: 6px; left: 50%; width: 100%;
+    height: 2px; background: var(--border); z-index: -1;
+  }
+  .step.done:not(:last-child)::after { background: var(--accent); }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .panel .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+  .panel .row .k { color: var(--muted); }
+  .panel .row .v { font-weight: 600; text-align: right; }
+
+  #map { height: 240px; border-radius: 12px; margin-bottom: 16px; display: none; }
+
+  .call-btn {
+    display: block; text-align: center; text-decoration: none;
+    padding: 14px; border-radius: 10px; background: var(--accent);
+    color: #fff; font-weight: 700; margin-bottom: 16px;
+  }
+
+  .msg { padding: 14px; border-radius: 10px; font-size: 14px; }
+  .msg.error { background: #fdecea; color: var(--error); }
+  .msg.info { background: #eef2ff; color: #333; }
+
+  footer { text-align: center; margin-top: 12px; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <span class="emoji">🚕</span>
+      <h1>Taxi J7</h1>
+    </div>
+    <h2>Suivi de votre course</h2>
+
+    <div class="steps" id="steps"></div>
+
+    <div id="content"></div>
+
+    <footer>Cette page se met à jour automatiquement.</footer>
+  </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const rideId = params.get("id");
+
+  const stepsEl = document.getElementById("steps");
+  const contentEl = document.getElementById("content");
+
+  const FLOW = ["PENDING", "ASSIGNED", "ACCEPTED", "EN_ROUTE", "ARRIVED", "COMPLETED"];
+  const STATUS_LABEL = {
+    PENDING: "En attente",
+    ASSIGNED: "Assignée",
+    ACCEPTED: "Acceptée",
+    EN_ROUTE: "En route",
+    ARRIVED: "Arrivé",
+    COMPLETED: "Terminée",
+    CANCELLED: "Annulée",
+  };
+  const STEP_LABEL = {
+    PENDING: "Demande",
+    ASSIGNED: "Assigné",
+    ACCEPTED: "Confirmé",
+    EN_ROUTE: "En route",
+    ARRIVED: "Arrivé",
+    COMPLETED: "Terminé",
+  };
+  const VEHICLE_LABEL = {
+    STANDARD: "🚗 Standard",
+    VAN: "🚐 Van",
+    PREMIUM: "⭐ Premium",
+  };
+
+  let map = null;
+  let pickupMarker = null;
+  let driverMarker = null;
+  let timer = null;
+
+  function renderSteps(status) {
+    if (status === "CANCELLED") {
+      stepsEl.style.display = "none";
+      return;
+    }
+    stepsEl.style.display = "flex";
+    const currentIndex = FLOW.indexOf(status);
+    stepsEl.innerHTML = FLOW.map((s, i) => {
+      const done = i <= currentIndex;
+      return '<div class="step' + (done ? " done" : "") + '">' +
+        '<div class="dot"></div><div class="label">' + STEP_LABEL[s] + "</div></div>";
+    }).join("");
+  }
+
+  function ensureMap(lat, lng) {
+    const mapEl = document.getElementById("map");
+    mapEl.style.display = "block";
+    if (!map) {
+      map = L.map("map").setView([lat, lng], 14);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap",
+      }).addTo(map);
+    }
+  }
+
+  function render(ride) {
+    renderSteps(ride.status);
+
+    let html = "";
+
+    if (ride.status === "CANCELLED") {
+      html += '<div class="msg error">Cette course a été annulée.</div>';
+    } else if (ride.status === "PENDING") {
+      html += '<div class="msg info">Votre demande a été envoyée. Un chauffeur va vous être assigné sous peu.</div>';
+    }
+
+    html += '<div class="panel">' +
+      '<div class="row"><span class="k">Statut</span><span class="v">' + STATUS_LABEL[ride.status] + '</span></div>' +
+      '<div class="row"><span class="k">Départ</span><span class="v">' + ride.pickupAddress + '</span></div>' +
+      '<div class="row"><span class="k">Destination</span><span class="v">' + ride.destinationAddress + '</span></div>' +
+      '<div class="row"><span class="k">Véhicule</span><span class="v">' + (VEHICLE_LABEL[ride.vehicleType] || ride.vehicleType) + '</span></div>' +
+      (ride.estimatedPrice != null ? '<div class="row"><span class="k">Prix estimé</span><span class="v">~' + Math.round(ride.estimatedPrice) + ' $</span></div>' : '') +
+      (ride.driver ? '<div class="row"><span class="k">Chauffeur</span><span class="v">' + ride.driver.name + '</span></div>' : '') +
+      '</div>';
+
+    contentEl.innerHTML = html;
+
+    if (ride.driver && ride.driver.phone) {
+      const btn = document.createElement("a");
+      btn.className = "call-btn";
+      btn.href = "tel:" + ride.driver.phone;
+      btn.textContent = "📞 Appeler le chauffeur";
+      contentEl.appendChild(btn);
+    }
+
+    const pos = ride.driver && ride.driver.driverProfile;
+    if (pos && typeof pos.lat === "number" && typeof pos.lng === "number") {
+      ensureMap(pos.lat, pos.lng);
+      if (!driverMarker) {
+        driverMarker = L.marker([pos.lat, pos.lng]).addTo(map).bindPopup("Chauffeur");
+      } else {
+        driverMarker.setLatLng([pos.lat, pos.lng]);
+      }
+      map.panTo([pos.lat, pos.lng]);
+    } else {
+      document.getElementById("map").style.display = "none";
+    }
+
+    if (["COMPLETED", "CANCELLED"].includes(ride.status) && timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  async function poll() {
+    try {
+      const res = await fetch("/public/track/" + encodeURIComponent(rideId));
+      if (!res.ok) {
+        if (res.status === 404) {
+          contentEl.innerHTML = '<div class="msg error">Course introuvable. Vérifiez le lien.</div>';
+          if (timer) clearInterval(timer);
+        }
+        return;
+      }
+      const ride = await res.json();
+      render(ride);
+    } catch {
+      // Réseau temporairement indisponible : on réessaiera au prochain tick.
+    }
+  }
+
+  if (!rideId) {
+    contentEl.innerHTML = '<div class="msg error">Identifiant de course manquant.</div>';
+  } else {
+    poll();
+    timer = setInterval(poll, 5000);
+  }
+</script>
+</body>
+</html>

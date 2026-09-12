@@ -19,10 +19,19 @@ driversRouter.get("/", requireRole("DISPATCHER"), async (_req, res) => {
       role: true,
       createdAt: true,
       driverProfile: true,
+      _count: {
+        select: { assignedRides: { where: { status: "COMPLETED" } } },
+      },
     },
     orderBy: { name: "asc" },
   });
-  res.json(drivers);
+
+  res.json(
+    drivers.map(({ _count, ...driver }) => ({
+      ...driver,
+      completedRides: _count.assignedRides,
+    }))
+  );
 });
 
 const statusSchema = z.object({
