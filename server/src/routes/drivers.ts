@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
+import { assignOldestPendingRideTo } from "../lib/rideHelpers";
 import { getIO } from "../sockets";
 
 export const driversRouter = Router();
@@ -54,6 +55,21 @@ driversRouter.patch("/me/status", requireRole("DRIVER"), async (req, res) => {
     driverId: req.user!.id,
     status: profile.status,
   });
+
+  if (parsed.data.status === "AVAILABLE") {
+    const assigned = await assignOldestPendingRideTo(req.user!.id);
+    if (assigned) {
+      await prisma.driverProfile.update({
+        where: { userId: req.user!.id },
+        data: { status: "ON_RIDE" },
+      });
+      getIO().to("dispatchers").emit("driver:status", {
+        driverId: req.user!.id,
+        status: "ON_RIDE",
+      });
+      return res.json({ ...profile, status: "ON_RIDE" });
+    }
+  }
 
   res.json(profile);
 });

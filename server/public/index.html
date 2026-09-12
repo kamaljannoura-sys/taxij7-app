@@ -381,6 +381,10 @@
 
     const data = Object.fromEntries(new FormData(form).entries());
     data.vehicleType = selectedVehicle;
+    if (pickupCoords) {
+      data.pickupLat = pickupCoords.lat;
+      data.pickupLng = pickupCoords.lon;
+    }
     if (pickupCoords && destinationCoords) {
       const km = haversineKm(pickupCoords, destinationCoords);
       data.estimatedPrice = Math.round(BASE_FARE + km * PER_KM * VEHICLE_MULTIPLIER[selectedVehicle]);

@@ -1,4 +1,6 @@
+import { prisma } from "./prisma";
 import { getIO } from "../sockets";
+import { findClosestAvailableDriver } from "./dispatchHelpers";
 
 export const rideInclude = {
   driver: { select: { id: true, name: true, phone: true } },
@@ -14,4 +16,79 @@ export function broadcastRideUpdate(
   if (ride.driverId) {
     getIO().to(`driver:${ride.driverId}`).emit(event, payload);
   }
+}
+
+// Assigne une course en attente à un chauffeur disponible : au plus proche du
+// point de prise en charge si ses coordonnées et celles d'au moins un chauffeur
+// sont connues, sinon au chauffeur disponible depuis le plus longtemps.
+// Retourne la course mise à jour, ou null s'il n'y a aucun chauffeur disponible.
+export async function autoAssignRide(
+  rideId: string,
+  pickupLat?: number | null,
+  pickupLng?: number | null
+) {
+  let driverId: string | null = null;
+  if (pickupLat != null && pickupLng != null) {
+    driverId = await findClosestAvailableDriver(pickupLat, pickupLng);
+  }
+  if (!driverId) {
+    const driver = await prisma.driverProfile.findFirst({
+      where: { status: "AVAILABLE" },
+      orderBy: { updatedAt: "asc" },
+    });
+    driverId = driver?.userId ?? null;
+  }
+  if (!driverId) return null;
+
+  // Réclame le chauffeur de façon atomique : si un autre appel l'a pris
+  // entre-temps (deux réservations simultanées), on abandonne proprement.
+  const claimed = await prisma.driverProfile.updateMany({
+    where: { userId: driverId, status: "AVAILABLE" },
+    data: { status: "ON_RIDE" },
+  });
+  if (claimed.count === 0) return null;
+
+  const ride = await prisma.ride.update({
+    where: { id: rideId },
+    data: { driverId, status: "ASSIGNED" },
+    include: rideInclude,
+  });
+
+  getIO().to("dispatchers").emit("ride:new", ride);
+  getIO().to(`driver:${driverId}`).emit("ride:new", ride);
+  getIO().to("dispatchers").emit("driver:status", {
+    driverId,
+    status: "ON_RIDE",
+  });
+
+  return ride;
+}
+
+// Assigne au chauffeur qui vient de se déclarer disponible la course en
+// attente la plus ancienne, s'il y en a une. Retourne la course mise à jour,
+// ou null s'il n'y a aucune course en attente.
+export async function assignOldestPendingRideTo(driverId: string) {
+  const pending = await prisma.ride.findFirst({
+    where: { status: "PENDING" },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!pending) return null;
+
+  // Réclame la course de façon atomique : si un autre chauffeur l'a prise
+  // entre-temps (deux passages "disponible" simultanés), on abandonne proprement.
+  const claimed = await prisma.ride.updateMany({
+    where: { id: pending.id, status: "PENDING" },
+    data: { driverId, status: "ASSIGNED" },
+  });
+  if (claimed.count === 0) return null;
+
+  const ride = await prisma.ride.findUniqueOrThrow({
+    where: { id: pending.id },
+    include: rideInclude,
+  });
+
+  getIO().to(`driver:${driverId}`).emit("ride:new", ride);
+  getIO().to("dispatchers").emit("ride:updated", ride);
+
+  return ride;
 }
