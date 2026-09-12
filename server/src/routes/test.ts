@@ -4,6 +4,32 @@ import { prisma } from "../lib/prisma";
 
 export const testRouter = Router();
 
+testRouter.post("/activate-drivers", async (_req, res) => {
+  try {
+    const phones = ["0612345678", "0687654321", "0698765432"];
+
+    const results = [];
+    for (const phone of phones) {
+      const user = await prisma.user.findUnique({ where: { phone } });
+      if (!user) {
+        results.push({ phone, status: "NOT_FOUND" });
+        continue;
+      }
+
+      await prisma.driverProfile.update({
+        where: { userId: user.id },
+        data: { status: "AVAILABLE" },
+      });
+
+      results.push({ phone, name: user.name, status: "AVAILABLE ✅" });
+    }
+
+    res.json({ message: "Drivers activated", drivers: results });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 testRouter.post("/seed-drivers", async (_req, res) => {
   try {
     const drivers = [
