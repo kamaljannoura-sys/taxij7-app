@@ -2,6 +2,7 @@ import { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 import { verifyToken } from "../middleware/auth";
 import { prisma } from "../lib/prisma";
+import { assignClosestPendingRideTo } from "../lib/rideHelpers";
 
 let io: Server | null = null;
 
@@ -32,11 +33,18 @@ export function initSockets(httpServer: HttpServer) {
 
       socket.on("driver:location", async ({ lat, lng }: { lat: number; lng: number }) => {
         if (typeof lat !== "number" || typeof lng !== "number") return;
-        await prisma.driverProfile.update({
+        const profile = await prisma.driverProfile.update({
           where: { userId: user.id },
           data: { lat, lng, locationUpdatedAt: new Date() },
         });
         io!.to("dispatchers").emit("driver:location", { driverId: user.id, lat, lng });
+
+        // Le chauffeur vient d'activer/mettre à jour sa position : s'il est
+        // disponible et qu'une course attend un chauffeur, on la lui donne
+        // (comportement façon Uber : sans position active, pas d'appel reçu).
+        if (profile.status === "AVAILABLE") {
+          await assignClosestPendingRideTo(user.id, lat, lng);
+        }
       });
     }
   });

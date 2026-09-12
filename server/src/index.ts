@@ -7,7 +7,6 @@ import { authRouter } from "./routes/auth";
 import { driversRouter } from "./routes/drivers";
 import { ridesRouter } from "./routes/rides";
 import { publicRouter } from "./routes/public";
-import { testRouter } from "./routes/test";
 import { initSockets } from "./sockets";
 
 const app = express();
@@ -30,7 +29,6 @@ app.use("/auth", authRouter);
 app.use("/drivers", driversRouter);
 app.use("/rides", ridesRouter);
 app.use("/public", publicRouter);
-app.use("/test", testRouter);
 
 const httpServer = createServer(app);
 initSockets(httpServer);
