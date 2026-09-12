@@ -287,8 +287,10 @@
       if (!res.ok) {
         throw new Error(body.error || "Une erreur est survenue");
       }
-      showMsg("Demande envoyée ! Un chauffeur va vous être assigné sous peu.", "success");
+      showMsg("Demande envoyée ! Redirection vers le suivi de votre course...", "success");
       form.reset();
+      window.location.href = "/suivi.html?id=" + encodeURIComponent(body.id);
+      return;
     } catch (err) {
       showMsg(err.message || "Impossible d'envoyer la demande. Réessayez.", "error");
     } finally {

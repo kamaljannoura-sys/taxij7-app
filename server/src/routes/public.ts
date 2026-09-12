@@ -45,3 +45,38 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
 
   res.status(201).json({ id: ride.id });
 });
+
+const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de demandes, réessayez plus tard." },
+});
+
+// Client public : suivi d'une course par son id, sans authentification
+publicRouter.get("/track/:id", trackLimiter, async (req, res) => {
+  const ride = await prisma.ride.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      status: true,
+      pickupAddress: true,
+      destinationAddress: true,
+      createdAt: true,
+      driver: {
+        select: {
+          name: true,
+          phone: true,
+          driverProfile: { select: { lat: true, lng: true, locationUpdatedAt: true } },
+        },
+      },
+    },
+  });
+
+  if (!ride) {
+    return res.status(404).json({ error: "Course introuvable" });
+  }
+
+  res.json(ride);
+});
