@@ -4,6 +4,7 @@ import * as Location from "expo-location";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
+  Linking,
   RefreshControl,
   StyleSheet,
   Switch,
@@ -34,6 +35,9 @@ export default function DriverHomeScreen() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [dispatcherContact, setDispatcherContact] = useState<{ name: string; phone: string } | null>(
+    null
+  );
   const watchRef = useRef<Location.LocationSubscription | null>(null);
 
   const load = useCallback(async () => {
@@ -45,6 +49,11 @@ export default function DriverHomeScreen() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!token) return;
+    api.getDispatcherContact(token).then(setDispatcherContact).catch(() => {});
+  }, [token]);
 
   const upsertRide = useCallback((ride: Ride) => {
     setRides((prev) => {
@@ -133,6 +142,26 @@ export default function DriverHomeScreen() {
 
       {locationError && <Text style={styles.locationError}>{locationError}</Text>}
 
+      {dispatcherContact && (
+        <View style={styles.dispatcherRow}>
+          <Text style={styles.dispatcherLabel}>Répartiteur : {dispatcherContact.name}</Text>
+          <View style={styles.dispatcherActions}>
+            <TouchableOpacity
+              style={styles.dispatcherButton}
+              onPress={() => Linking.openURL(`tel:${dispatcherContact.phone}`)}
+            >
+              <Text style={styles.dispatcherButtonText}>📞 Appeler</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dispatcherButton}
+              onPress={() => Linking.openURL(`sms:${dispatcherContact.phone}`)}
+            >
+              <Text style={styles.dispatcherButtonText}>💬 Message</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       <FlatList
         data={rides}
         keyExtractor={(item) => item.id}
@@ -179,6 +208,24 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 8,
   },
+  dispatcherRow: {
+    backgroundColor: "#fff",
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 12,
+  },
+  dispatcherLabel: { fontSize: 13, fontWeight: "600", color: "#444", marginBottom: 10 },
+  dispatcherActions: { flexDirection: "row", gap: 10 },
+  dispatcherButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  dispatcherButtonText: { fontSize: 13, fontWeight: "600", color: "#333" },
   card: { backgroundColor: "#fff", borderRadius: 12, padding: 16, marginBottom: 10 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
   client: { fontSize: 16, fontWeight: "600" },
