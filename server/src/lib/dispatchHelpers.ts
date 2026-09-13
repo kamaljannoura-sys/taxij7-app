@@ -7,13 +7,15 @@ interface DriverDistance {
 
 export async function findClosestAvailableDriver(
   pickupLat: number,
-  pickupLng: number
+  pickupLng: number,
+  excludeDriverIds: string[] = []
 ): Promise<string | null> {
   const availableDrivers = await prisma.driverProfile.findMany({
     where: {
       status: "AVAILABLE",
       lat: { not: null },
       lng: { not: null },
+      ...(excludeDriverIds.length > 0 ? { userId: { notIn: excludeDriverIds } } : {}),
     },
     select: {
       userId: true,

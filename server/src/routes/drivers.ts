@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { assignClosestPendingRideTo } from "../lib/rideHelpers";
+import { scheduleResponseTimeout } from "../lib/dispatchQueue";
 import { getIO } from "../sockets";
 
 export const driversRouter = Router();
@@ -123,6 +124,7 @@ driversRouter.patch("/me/status", requireRole("DRIVER"), async (req, res) => {
   if (parsed.data.status === "AVAILABLE" && profile.lat != null && profile.lng != null) {
     const assigned = await assignClosestPendingRideTo(req.user!.id, profile.lat, profile.lng);
     if (assigned) {
+      scheduleResponseTimeout(assigned.id, req.user!.id);
       return res.json({ ...profile, status: "ON_RIDE" });
     }
   }

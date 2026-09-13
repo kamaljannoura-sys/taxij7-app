@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import { verifyToken } from "../middleware/auth";
 import { prisma } from "../lib/prisma";
 import { assignClosestPendingRideTo } from "../lib/rideHelpers";
+import { scheduleResponseTimeout } from "../lib/dispatchQueue";
 
 let io: Server | null = null;
 
@@ -43,7 +44,10 @@ export function initSockets(httpServer: HttpServer) {
         // disponible et qu'une course attend un chauffeur, on la lui donne
         // (comportement façon Uber : sans position active, pas d'appel reçu).
         if (profile.status === "AVAILABLE") {
-          await assignClosestPendingRideTo(user.id, lat, lng);
+          const assigned = await assignClosestPendingRideTo(user.id, lat, lng);
+          if (assigned) {
+            scheduleResponseTimeout(assigned.id, user.id);
+          }
         }
       });
     }
