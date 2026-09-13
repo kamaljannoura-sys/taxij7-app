@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { autoAssignRide, broadcastRideUpdate, rideInclude } from "../lib/rideHelpers";
+import { scheduleResponseTimeout } from "../lib/dispatchQueue";
 
 export const publicRouter = Router();
 
@@ -50,7 +51,9 @@ publicRouter.post("/book", bookingLimiter, async (req, res) => {
   });
 
   const assigned = await autoAssignRide(ride.id, parsed.data.pickupLat, parsed.data.pickupLng);
-  if (!assigned) {
+  if (assigned && assigned.driverId) {
+    scheduleResponseTimeout(assigned.id, assigned.driverId);
+  } else {
     broadcastRideUpdate(ride, "ride:new", ride);
   }
 

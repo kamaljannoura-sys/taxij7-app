@@ -5,6 +5,7 @@ import { requireAuth, requireRole } from "../middleware/auth";
 import { getIO } from "../sockets";
 import { broadcastRideUpdate, rideInclude } from "../lib/rideHelpers";
 import { findClosestAvailableDriver } from "../lib/dispatchHelpers";
+import { clearDispatchState, reassign, scheduleResponseTimeout } from "../lib/dispatchQueue";
 
 export const ridesRouter = Router();
 
@@ -89,6 +90,7 @@ ridesRouter.post("/", requireRole("DISPATCHER"), async (req, res) => {
     });
     getIO().to(`driver:${assignedDriverId}`).emit("ride:new", ride);
     getIO().to("dispatchers").emit("driver:status", { driverId: assignedDriverId, status: "ON_RIDE" });
+    scheduleResponseTimeout(ride.id, assignedDriverId, { resetTried: true });
   }
   getIO().to("dispatchers").emit("ride:new", ride);
 
@@ -121,26 +123,45 @@ ridesRouter.patch("/:id/assign", requireRole("DISPATCHER"), async (req, res) => 
     driverId: parsed.data.driverId,
     status: "ON_RIDE",
   });
+  scheduleResponseTimeout(ride.id, parsed.data.driverId, { resetTried: true });
 
   res.json(ride);
 });
 
 // Driver: accept an assigned ride
 ridesRouter.patch("/:id/accept", requireRole("DRIVER"), async (req, res) => {
-  const ride = await prisma.ride.update({
-    where: { id: req.params.id },
+  // Réclame de façon atomique : si la course a déjà été réattribuée à un
+  // autre chauffeur entre-temps (délai de réponse expiré), on refuse plutôt
+  // que d'accepter une course qui n'est plus la sienne.
+  const claimed = await prisma.ride.updateMany({
+    where: { id: req.params.id, driverId: req.user!.id, status: "ASSIGNED" },
     data: { status: "ACCEPTED" },
+  });
+  if (claimed.count === 0) {
+    return res.status(409).json({ error: "Cette course ne vous est plus assignée." });
+  }
+
+  const ride = await prisma.ride.findUniqueOrThrow({
+    where: { id: req.params.id },
     include: rideInclude,
   });
+  clearDispatchState(ride.id);
   broadcastRideUpdate(ride, "ride:updated", ride);
   res.json(ride);
 });
 
-// Driver: decline an assigned ride (goes back to pending, unassigned)
+// Driver: decline an assigned ride (reassigned automatically to the next driver)
 ridesRouter.patch("/:id/decline", requireRole("DRIVER"), async (req, res) => {
-  const ride = await prisma.ride.update({
-    where: { id: req.params.id },
+  const claimed = await prisma.ride.updateMany({
+    where: { id: req.params.id, driverId: req.user!.id },
     data: { status: "PENDING", driverId: null },
+  });
+  if (claimed.count === 0) {
+    return res.status(409).json({ error: "Cette course ne vous est plus assignée." });
+  }
+
+  const ride = await prisma.ride.findUniqueOrThrow({
+    where: { id: req.params.id },
     include: rideInclude,
   });
 
@@ -155,6 +176,13 @@ ridesRouter.patch("/:id/decline", requireRole("DRIVER"), async (req, res) => {
     driverId: req.user!.id,
     status: "AVAILABLE",
   });
+
+  // Réattribue immédiatement au chauffeur disponible suivant plutôt que
+  // d'attendre le délai de réponse (le refus est un signal explicite).
+  reassign(ride.id).catch((err) =>
+    console.error(`Erreur lors de la réattribution après refus (course ${ride.id}):`, err)
+  );
+
   res.json(ride);
 });
 
@@ -169,11 +197,22 @@ ridesRouter.patch("/:id/status", requireRole("DRIVER"), async (req, res) => {
     return res.status(400).json({ error: "Statut invalide" });
   }
 
-  const ride = await prisma.ride.update({
-    where: { id: req.params.id },
+  const claimed = await prisma.ride.updateMany({
+    where: { id: req.params.id, driverId: req.user!.id },
     data: { status: parsed.data.status },
+  });
+  if (claimed.count === 0) {
+    return res.status(409).json({ error: "Cette course ne vous est plus assignée." });
+  }
+
+  const ride = await prisma.ride.findUniqueOrThrow({
+    where: { id: req.params.id },
     include: rideInclude,
   });
+
+  if (parsed.data.status === "COMPLETED") {
+    clearDispatchState(ride.id);
+  }
 
   if (parsed.data.status === "COMPLETED" && ride.driverId) {
     await prisma.driverProfile.update({
