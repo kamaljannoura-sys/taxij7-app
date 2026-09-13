@@ -83,6 +83,19 @@ driversRouter.post("/", requireRole("DISPATCHER"), async (req, res) => {
   res.status(201).json({ ...driver, completedRides: 0 });
 });
 
+// Driver: get the dispatcher's contact info (to call/message from the app)
+driversRouter.get("/dispatcher-contact", requireRole("DRIVER"), async (_req, res) => {
+  const dispatcher = await prisma.user.findFirst({
+    where: { role: "DISPATCHER" },
+    select: { name: true, phone: true },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!dispatcher) {
+    return res.status(404).json({ error: "Aucun répartiteur trouvé" });
+  }
+  res.json(dispatcher);
+});
+
 const statusSchema = z.object({
   status: z.enum(["AVAILABLE", "UNAVAILABLE"]),
 });

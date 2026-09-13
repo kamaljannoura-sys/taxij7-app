@@ -43,6 +43,9 @@ export const api = {
   updateMyStatus: (token: string, status: DriverStatus) =>
     request("/drivers/me/status", { method: "PATCH", token, body: { status } }),
 
+  getDispatcherContact: (token: string) =>
+    request<{ name: string; phone: string }>("/drivers/dispatcher-contact", { token }),
+
   getRides: (token: string) => request<Ride[]>("/rides", { token }),
 
   getMyRides: (token: string) => request<Ride[]>("/rides/mine", { token }),
