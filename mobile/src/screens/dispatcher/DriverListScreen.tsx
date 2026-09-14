@@ -3,7 +3,6 @@ import {
   Alert,
   FlatList,
   KeyboardAvoidingView,
-  Linking,
   Modal,
   Platform,
   RefreshControl,
@@ -16,6 +15,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { callPhone, messagePhone } from "../../lib/contact";
 import { getSocket } from "../../lib/socket";
 import type { Driver, DriverStatus } from "../../types";
 
@@ -145,13 +145,13 @@ export default function DriverListScreen() {
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => Linking.openURL(`tel:${item.phone}`)}
+                  onPress={() => callPhone(item.phone)}
                 >
                   <Text style={styles.actionText}>📞 Appeler</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => Linking.openURL(`sms:${item.phone}`)}
+                  onPress={() => messagePhone(item.phone)}
                 >
                   <Text style={styles.actionText}>💬 Message</Text>
                 </TouchableOpacity>

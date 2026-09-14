@@ -1,8 +1,9 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { callPhone } from "../../lib/contact";
 import { getSocket } from "../../lib/socket";
 import type { DriverStackParamList } from "../../navigation/types";
 import type { Ride, RideStatus } from "../../types";
@@ -58,7 +59,7 @@ export default function RideDetailScreen({ route, navigation }: Props) {
     }
   };
 
-  const callClient = () => Linking.openURL(`tel:${ride.clientPhone}`);
+  const callClient = () => callPhone(ride.clientPhone);
 
   const nextAction = NEXT_STATUS[ride.status];
 
