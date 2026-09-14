@@ -73,4 +73,16 @@ export const api = {
 
   updateRideStatus: (token: string, rideId: string, status: RideStatus) =>
     request<Ride>(`/rides/${rideId}/status`, { method: "PATCH", token, body: { status } }),
+
+  unlockDoor: (token: string) =>
+    request<{ success: boolean; message: string }>("/drivers/me/unlock-door", {
+      method: "POST",
+      token,
+    }),
+
+  boostBattery: (token: string) =>
+    request<{ success: boolean; message: string }>("/drivers/me/boost-battery", {
+      method: "POST",
+      token,
+    }),
 };
