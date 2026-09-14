@@ -38,6 +38,8 @@ export default function DriverHomeScreen() {
   const [dispatcherContact, setDispatcherContact] = useState<{ name: string; phone: string } | null>(
     null
   );
+  const [controlLoading, setControlLoading] = useState(false);
+  const [controlMessage, setControlMessage] = useState<string | null>(null);
   const watchRef = useRef<Location.LocationSubscription | null>(null);
 
   const load = useCallback(async () => {
@@ -122,6 +124,36 @@ export default function DriverHomeScreen() {
     }
   };
 
+  const handleUnlockDoor = async () => {
+    if (!token) return;
+    setControlLoading(true);
+    try {
+      const result = await api.unlockDoor(token);
+      setControlMessage("🔓 Porte déverrouillée avec succès!");
+      setTimeout(() => setControlMessage(null), 3000);
+    } catch (error) {
+      setControlMessage("❌ Erreur: impossible de déverrouiller la porte");
+      setTimeout(() => setControlMessage(null), 3000);
+    } finally {
+      setControlLoading(false);
+    }
+  };
+
+  const handleBoostBattery = async () => {
+    if (!token) return;
+    setControlLoading(true);
+    try {
+      const result = await api.boostBattery(token);
+      setControlMessage("⚡ Batterie en cours de chargement!");
+      setTimeout(() => setControlMessage(null), 3000);
+    } catch (error) {
+      setControlMessage("❌ Erreur: impossible de charger la batterie");
+      setTimeout(() => setControlMessage(null), 3000);
+    } finally {
+      setControlLoading(false);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await load();
@@ -141,6 +173,34 @@ export default function DriverHomeScreen() {
       </View>
 
       {locationError && <Text style={styles.locationError}>{locationError}</Text>}
+
+      {controlMessage && (
+        <Text
+          style={[
+            styles.controlMessage,
+            controlMessage.includes("❌") ? styles.controlError : styles.controlSuccess,
+          ]}
+        >
+          {controlMessage}
+        </Text>
+      )}
+
+      <View style={styles.controlRow}>
+        <TouchableOpacity
+          style={[styles.controlButton, controlLoading && styles.controlButtonDisabled]}
+          onPress={handleUnlockDoor}
+          disabled={controlLoading}
+        >
+          <Text style={styles.controlButtonText}>🔓 Déverrouiller</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.controlButton, controlLoading && styles.controlButtonDisabled]}
+          onPress={handleBoostBattery}
+          disabled={controlLoading}
+        >
+          <Text style={styles.controlButtonText}>⚡ Charger Batterie</Text>
+        </TouchableOpacity>
+      </View>
 
       {dispatcherContact && (
         <View style={styles.dispatcherRow}>
@@ -207,6 +267,44 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 12,
     borderRadius: 8,
+  },
+  controlMessage: {
+    fontSize: 13,
+    fontWeight: "600",
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: 8,
+    textAlign: "center",
+  },
+  controlSuccess: {
+    color: "#2e7d32",
+    backgroundColor: "#e8f5e9",
+  },
+  controlError: {
+    color: "#c62828",
+    backgroundColor: "#ffebee",
+  },
+  controlRow: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  controlButton: {
+    flex: 1,
+    backgroundColor: "#1565c0",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  controlButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  controlButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
   },
   dispatcherRow: {
     backgroundColor: "#fff",

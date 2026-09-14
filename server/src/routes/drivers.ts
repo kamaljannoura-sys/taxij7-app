@@ -131,3 +131,51 @@ driversRouter.patch("/me/status", requireRole("DRIVER"), async (req, res) => {
 
   res.json(profile);
 });
+
+// Driver: unlock car door
+driversRouter.post("/me/unlock-door", requireRole("DRIVER"), async (_req, res) => {
+  const driverId = _req.user!.id;
+
+  const driver = await prisma.user.findUnique({
+    where: { id: driverId },
+    select: { id: true, name: true, driverProfile: true },
+  });
+
+  if (!driver || !driver.driverProfile) {
+    return res.status(404).json({ error: "Chauffeur non trouvé" });
+  }
+
+  getIO().to("dispatchers").emit("vehicle:door-unlocked", {
+    driverId,
+    driverName: driver.name,
+    vehicle: driver.driverProfile.vehicle,
+    plate: driver.driverProfile.plate,
+    timestamp: new Date().toISOString(),
+  });
+
+  res.json({ success: true, message: "Porte déverrouillée" });
+});
+
+// Driver: boost battery
+driversRouter.post("/me/boost-battery", requireRole("DRIVER"), async (_req, res) => {
+  const driverId = _req.user!.id;
+
+  const driver = await prisma.user.findUnique({
+    where: { id: driverId },
+    select: { id: true, name: true, driverProfile: true },
+  });
+
+  if (!driver || !driver.driverProfile) {
+    return res.status(404).json({ error: "Chauffeur non trouvé" });
+  }
+
+  getIO().to("dispatchers").emit("vehicle:battery-boosted", {
+    driverId,
+    driverName: driver.name,
+    vehicle: driver.driverProfile.vehicle,
+    plate: driver.driverProfile.plate,
+    timestamp: new Date().toISOString(),
+  });
+
+  res.json({ success: true, message: "Batterie en cours de chargement" });
+});
