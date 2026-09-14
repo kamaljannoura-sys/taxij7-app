@@ -4,7 +4,6 @@ import * as Location from "expo-location";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
-  Linking,
   RefreshControl,
   StyleSheet,
   Switch,
@@ -14,6 +13,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { callPhone, messagePhone } from "../../lib/contact";
 import { getSocket } from "../../lib/socket";
 import type { DriverStackParamList } from "../../navigation/types";
 import type { Ride, RideStatus } from "../../types";
@@ -148,13 +148,13 @@ export default function DriverHomeScreen() {
           <View style={styles.dispatcherActions}>
             <TouchableOpacity
               style={styles.dispatcherButton}
-              onPress={() => Linking.openURL(`tel:${dispatcherContact.phone}`)}
+              onPress={() => callPhone(dispatcherContact.phone)}
             >
               <Text style={styles.dispatcherButtonText}>📞 Appeler</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.dispatcherButton}
-              onPress={() => Linking.openURL(`sms:${dispatcherContact.phone}`)}
+              onPress={() => messagePhone(dispatcherContact.phone)}
             >
               <Text style={styles.dispatcherButtonText}>💬 Message</Text>
             </TouchableOpacity>
