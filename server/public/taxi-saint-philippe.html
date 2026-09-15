@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Saint-Philippe | Service 24h/24 - Réservez au (450) 949-5000</title>
+    <meta name="description" content="Taxi Saint-Philippe disponible 24h/24. Transport local, aéroport Montréal-Trudeau, longue distance, débarrage et batterie. Service professionnel et fiable.">
+    <meta name="keywords" content="taxi saint-philippe, taxi rive-sud, taxi aéroport trudeau, transport montreal">
+    <meta property="og:title" content="Taxi Saint-Philippe | Service Professionnel 24h/24">
+    <meta property="og:description" content="Taxi fiable à Saint-Philippe. Service local, aéroport YUL, longue distance.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#0052CC">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0052CC;
+            --primary-dark: #003D99;
+            --primary-light: #E3F2FF;
+            --accent: #FF6B35;
+            --accent-light: #FFF5F0;
+            --success: #4CAF50;
+            --text-dark: #1A1A1A;
+            --text-gray: #555555;
+            --text-light: #999999;
+            --border: #E0E0E0;
+            --bg-light: #F8F9FA;
+            --white: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background: var(--white);
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        nav a {
+            color: var(--text-dark);
+            text-decoration: none;
+            margin: 0 1.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .call-btn {
+            background: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .call-btn:hover {
+            background: #E55A2B;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            letter-spacing: -1px;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #E55A2B;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            padding: 1rem 2.5rem;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ===== STATS ===== */
+        .stats {
+            background: var(--bg-light);
+            padding: 3rem 2rem;
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        /* ===== SECTION ===== */
+        section {
+            padding: 4rem 2rem;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+        }
+
+        /* ===== SERVICES ===== */
+        .services {
+            background: var(--white);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 12px 32px rgba(0, 82, 204, 0.15);
+            transform: translateY(-8px);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-dark);
+        }
+
+        .service-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-card ul {
+            list-style: none;
+        }
+
+        .service-card li {
+            color: var(--text-gray);
+            padding: 0.4rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .service-card li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* ===== FEATURES ===== */
+        .features {
+            background: var(--bg-light);
+        }
+
+        .features-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            padding: 1rem 0;
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-number {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .features-list h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .features-list p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .features-image {
+            background: var(--primary);
+            height: 400px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        /* ===== CTA ===== */
+        .cta {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .cta p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        /* ===== CONTACT ===== */
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .contact-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .contact-item h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-item a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .contact-item a:hover {
+            color: var(--primary);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo span {
+            color: var(--accent);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-content {
+                grid-template-columns: 1fr;
+            }
+
+            .features-image {
+                height: 250px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 3rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+
+            section {
+                padding: 2rem 1rem;
+            }
+
+            .stat-item h3 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">Taxi <span>J7</span></a>
+            <nav>
+                <a href="#services">Services</a>
+                <a href="#pourquoi">Pourquoi nous</a>
+                <a href="#contact">Contact</a>
+            </nav>
+            <a href="tel:4509495000" class="call-btn">📞 Appeler</a>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Taxi Saint-Philippe<br>Service 24h/24</h1>
+            <p class="subtitle">Rapide, fiable et professionnel pour tous vos déplacements</p>
+            <div class="hero-buttons">
+                <a href="tel:4509495000" class="btn-primary">Appeler maintenant</a>
+                <a href="#contact" class="btn-secondary">Réserver en ligne</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STATS ===== -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-item">
+                <h3>24/7</h3>
+                <p>Disponible jour et nuit</p>
+            </div>
+            <div class="stat-item">
+                <h3>5 min</h3>
+                <p>Temps d'attente moyen</p>
+            </div>
+            <div class="stat-item">
+                <h3>100%</h3>
+                <p>Client satisfait</p>
+            </div>
+            <div class="stat-item">
+                <h3>500+</h3>
+                <p>Trajets par mois</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SERVICES ===== -->
+    <section class="services" id="services">
+        <div class="section-container">
+            <h2 class="section-title">Nos services</h2>
+            <p class="section-subtitle">Une gamme complète pour tous vos besoins</p>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🚖</div>
+                    <h3>Taxi Local</h3>
+                    <p>Transport rapide et fiable dans Saint-Philippe et la Rive-Sud</p>
+                    <ul>
+                        <li>Déplacements quotidiens</li>
+                        <li>Rendez-vous importants</li>
+                        <li>Trajets commerciaux</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">✈️</div>
+                    <h3>Aéroport Trudeau</h3>
+                    <p>Service vers l'aéroport de Montréal avec ponctualité garantie</p>
+                    <ul>
+                        <li>Réservation à l'avance</li>
+                        <li>Suivi de vol</li>
+                        <li>Trajet direct</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">🛣️</div>
+                    <h3>Longue Distance</h3>
+                    <p>Trajets confortables pour vos déplacements régionaux</p>
+                    <ul>
+                        <li>Tarifs compétitifs</li>
+                        <li>Confort maximalisé</li>
+                        <li>Chauffeur courtois</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">🔧</div>
+                    <h3>Assistance Routière</h3>
+                    <p>Dépannage et aide sur la route quand vous en avez besoin</p>
+                    <ul>
+                        <li>Débarrage de porte</li>
+                        <li>Survoltage batterie</li>
+                        <li>Aide d'urgence</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">👥</div>
+                    <h3>Grand Véhicule</h3>
+                    <p>Taxi pour 6 passagers ou plus avec confort optimal</p>
+                    <ul>
+                        <li>Groupes et familles</li>
+                        <li>Événements spéciaux</li>
+                        <li>Espace bagage</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">📅</div>
+                    <h3>Réservation</h3>
+                    <p>Planifiez votre trajet à l'avance facilement</p>
+                    <ul>
+                        <li>Confirmation immédiate</li>
+                        <li>Modifie facilement</li>
+                        <li>Prix transparent</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="features" id="pourquoi">
+        <div class="section-container">
+            <h2 class="section-title">Pourquoi choisir Taxi J7</h2>
+            <p class="section-subtitle">L'expérience et la fiabilité au cœur de notre service</p>
+
+            <div class="features-content">
+                <div>
+                    <ul class="features-list">
+                        <li>
+                            <div class="feature-number">1</div>
+                            <div>
+                                <h4>Disponibilité 24/7</h4>
+                                <p>Accessible jour et nuit, 365 jours par année</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-number">2</div>
+                            <div>
+                                <h4>Chauffeurs Expérimentés</h4>
+                                <p>Professionnel formé et courtois pour votre sécurité</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-number">3</div>
+                            <div>
+                                <h4>Véhicules Confortables</h4>
+                                <p>Voitures modernes et bien entretenues</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-number">4</div>
+                            <div>
+                                <h4>Tarifs Transparents</h4>
+                                <p>Prix justes sans surprise à la fin</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-number">5</div>
+                            <div>
+                                <h4>Service Sécuritaire</h4>
+                                <p>Votre sécurité est notre priorité</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="features-image">
+                    🚕 Taxi J7 Premium
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta">
+        <div class="section-container">
+            <h2>Besoin d'un taxi maintenant ?</h2>
+            <p>Appelez-nous ou réservez en ligne en quelques secondes</p>
+            <a href="tel:4509495000" class="btn-primary">📞 (450) 949-5000</a>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact">
+        <div class="section-container">
+            <h2 class="section-title">Contactez-nous</h2>
+            <p class="section-subtitle">Disponible 24h/24 pour répondre à vos questions</p>
+
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h3>📞 Téléphone</h3>
+                    <a href="tel:4509495000">(450) 949-5000</a>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">24h/24 et 7j/7</p>
+                </div>
+                <div class="contact-item">
+                    <h3>📧 Email</h3>
+                    <a href="mailto:info@taxij7rivesud.com">info@taxij7rivesud.com</a>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">Réponse rapide</p>
+                </div>
+                <div class="contact-item">
+                    <h3>📍 Service</h3>
+                    <p style="color: var(--text-dark); font-weight: 600;">Saint-Philippe<br>Rive-Sud Montréal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">Taxi <span>J7</span></div>
+                    <p style="color: rgba(255, 255, 255, 0.7);">Votre taxi professionnel à Saint-Philippe, disponible 24h/24 pour tous vos déplacements.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#services">Taxi Local</a></li>
+                        <li><a href="#services">Aéroport YUL</a></li>
+                        <li><a href="#services">Longue Distance</a></li>
+                        <li><a href="#services">Assistance Routière</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Compagnie</h4>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="#">À Propos</a></li>
+                        <li><a href="#">Conditions</a></li>
+                        <li><a href="#">Confidentialité</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:4509495000">(450) 949-5000</a></li>
+                        <li><a href="mailto:info@taxij7rivesud.com">info@taxij7rivesud.com</a></li>
+                        <li>24h/24, 7j/7</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Taxi J7 Rive-Sud. Tous droits réservés. | <a href="#" style="color: rgba(255, 255, 255, 0.7);">Politique de confidentialité</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+
+        // Add scroll effect to header
+        const header = document.querySelector('header');
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > 100) {
+                header.style.boxShadow = '0 2px 16px rgba(0, 0, 0, 0.12)';
+            } else {
+                header.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+    </script>
+</body>
+</html>
