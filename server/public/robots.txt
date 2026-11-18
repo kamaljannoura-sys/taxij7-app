@@ -4,5 +4,3 @@ Disallow: /driver
 Disallow: /drivers-map
 Disallow: /app/
 Disallow: /suivi.html
-
-Sitemap: https://taxij7rivesud.com/sitemap.xml
