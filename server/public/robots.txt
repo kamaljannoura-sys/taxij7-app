@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /driver
+Disallow: /drivers-map
+Disallow: /app/
+Disallow: /suivi.html
