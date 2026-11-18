@@ -1,232 +1,602 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr-CA">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Réserver un taxi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Taxi J7 Rive-Sud | Taxi à Longueuil, Brossard, Saint-Hubert — Réservation en ligne</title>
+<meta name="description" content="Taxi J7 Rive-Sud : réservez votre taxi en ligne en 30 secondes. Longueuil, Brossard, Saint-Hubert, Boucherville et environs. Prix estimé immédiat, suivi du chauffeur en temps réel, transferts aéroport YUL." />
+<link rel="canonical" href="https://taxij7rivesud.com/" />
+<meta name="theme-color" content="#14130f" />
+<meta name="robots" content="index, follow" />
+
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="fr_CA" />
+<meta property="og:site_name" content="Taxi J7 Rive-Sud" />
+<meta property="og:title" content="Taxi J7 Rive-Sud — Réservez votre taxi en ligne" />
+<meta property="og:description" content="Prix estimé immédiat, chauffeur assigné en quelques minutes et suivi en temps réel. Longueuil, Brossard, Saint-Hubert et toute la Rive-Sud." />
+<meta property="og:url" content="https://taxij7rivesud.com/" />
+<meta name="twitter:card" content="summary" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/app/favicon.ico" sizes="any" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TaxiService",
+  "name": "Taxi J7 Rive-Sud",
+  "url": "https://taxij7rivesud.com/",
+  "description": "Service de taxi sur la Rive-Sud de Montréal avec réservation en ligne et suivi en temps réel.",
+  "areaServed": [
+    "Longueuil", "Brossard", "Saint-Hubert", "Saint-Lambert", "Greenfield Park",
+    "Boucherville", "La Prairie", "Candiac", "Saint-Bruno-de-Montarville", "Varennes"
+  ],
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Taxi J7 Rive-Sud",
+    "url": "https://taxij7rivesud.com/",
+    "address": { "@type": "PostalAddress", "addressRegion": "QC", "addressCountry": "CA" },
+    "openingHours": "Mo-Su 00:00-23:59"
+  }
+}
+</script>
+
 <style>
   :root {
-    --bg: #faf9f7;
-    --card: #ffffff;
-    --ink: #1a1a1a;
-    --muted: #6b6b6b;
-    --border: #e2e0dc;
-    --accent: #1a1a1a;
-    --accent-ink: #ffffff;
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --surface-2: #f3f1ec;
+    --ink: #14130f;
+    --ink-2: #3d3b35;
+    --muted: #6b685f;
+    --border: #e4e1da;
+    --taxi: #f5b700;
+    --taxi-ink: #14130f;
+    --dark: #14130f;
+    --dark-ink: #faf9f6;
     --success: #1e7d34;
-    --error: #c62828;
+    --success-bg: #e7f4ea;
+    --error: #b3261e;
+    --error-bg: #fbeceb;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,19,15,.04), 0 8px 24px rgba(20,19,15,.06);
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    padding: 24px 16px 60px;
+    line-height: 1.5;
   }
-  .card {
-    width: 100%;
-    max-width: 420px;
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  :focus-visible { outline: 3px solid var(--taxi); outline-offset: 2px; }
+
+  /* ---------- En-tête ---------- */
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250,249,246,.92);
+    backdrop-filter: saturate(1.4) blur(8px);
+    -webkit-backdrop-filter: saturate(1.4) blur(8px);
+    border-bottom: 1px solid var(--border);
   }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 24px;
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 12px; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 18px; letter-spacing: -.01em; }
+  .logo-mark {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--taxi); color: var(--taxi-ink);
+    display: grid; place-items: center; font-weight: 900; font-size: 15px;
+    background-image: repeating-linear-gradient(90deg, transparent 0 6px, rgba(20,19,15,.12) 6px 12px);
+    background-size: 100% 5px; background-repeat: no-repeat; background-position: bottom;
   }
-  .brand .emoji { font-size: 28px; }
-  .brand h1 { font-size: 20px; margin: 0; font-weight: 700; }
-  h2 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; font-weight: 800; }
-  .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
-    margin: 16px 0 6px;
+  .logo small { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-top: -2px; }
+  nav.links { display: none; gap: 22px; font-size: 14px; font-weight: 600; }
+  nav.links a { text-decoration: none; color: var(--ink-2); }
+  nav.links a:hover { color: var(--ink); }
+  .head-actions { display: flex; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 14px;
+    text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap;
   }
+  .btn-dark { background: var(--dark); color: var(--dark-ink); }
+  .btn-taxi { background: var(--taxi); color: var(--taxi-ink); }
+  .btn-ghost { background: var(--surface); border-color: var(--border); color: var(--ink); }
+  [data-phone-only][hidden] { display: none !important; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 28px 0 40px; }
+  .hero .wrap { display: grid; gap: 28px; align-items: start; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px;
+  }
+  .eyebrow .dot { width: 8px; height: 8px; border-radius: 50%; background: #2fb34a; box-shadow: 0 0 0 3px rgba(47,179,74,.18); }
+  .hero h1 { font-size: clamp(30px, 7vw, 50px); line-height: 1.05; letter-spacing: -.025em; margin: 14px 0 12px; font-weight: 850; }
+  .hero h1 .hl { background: linear-gradient(transparent 62%, var(--taxi) 62%); padding: 0 2px; }
+  .hero .lead { font-size: 17px; color: var(--ink-2); margin: 0 0 20px; max-width: 520px; }
+  .trust { display: flex; flex-wrap: wrap; gap: 10px 18px; padding: 0; margin: 0; list-style: none; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+  .trust li { display: flex; align-items: center; gap: 6px; }
+  .trust svg { flex: none; }
+
+  /* ---------- Carte de réservation ---------- */
+  .book {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+    box-shadow: var(--shadow); padding: 20px; scroll-margin-top: 76px;
+  }
+  .book h2 { font-size: 20px; margin: 0 0 2px; letter-spacing: -.01em; }
+  .book .sub { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+  label { display: block; font-size: 13px; font-weight: 650; color: var(--ink-2); margin: 14px 0 6px; }
+  label .opt { font-weight: 500; color: var(--muted); }
   input, textarea {
-    width: 100%;
-    padding: 13px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 15px;
-    background: var(--card);
-    color: var(--ink);
-    font-family: inherit;
+    width: 100%; padding: 13px 14px; border: 1px solid var(--border); border-radius: 10px;
+    font-size: 16px; background: var(--surface); color: var(--ink); font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
   }
-  input:focus, textarea:focus {
-    outline: none;
-    border-color: var(--ink);
+  input:focus, textarea:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(245,183,0,.35); }
+  .route { position: relative; }
+  .route .stop { position: relative; padding-left: 26px; }
+  .route .stop::before {
+    content: ""; position: absolute; left: 4px; top: 44px; width: 10px; height: 10px; border-radius: 50%;
+    border: 3px solid var(--ink); background: var(--surface);
   }
-  button {
-    width: 100%;
-    margin-top: 26px;
-    padding: 16px;
-    border: none;
-    border-radius: 10px;
-    background: var(--accent);
-    color: var(--accent-ink);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
+  .route .stop.dest::before { border-radius: 2px; background: var(--ink); }
+  .route::after {
+    content: ""; position: absolute; left: 10px; top: 60px; height: calc(100% - 118px); min-height: 40px;
+    border-left: 2px dotted var(--border);
   }
-  button:disabled { opacity: 0.5; cursor: default; }
-  .msg {
-    margin-top: 16px;
-    padding: 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    display: none;
-  }
-  .msg.success { display: block; background: #e8f5e9; color: var(--success); }
-  .msg.error { display: block; background: #fdecea; color: var(--error); }
   .locate {
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--muted);
-    background: none;
-    border: none;
-    padding: 0;
-    width: auto;
-    font-weight: 600;
-    text-decoration: underline;
-    cursor: pointer;
+    margin-top: 8px; font-size: 13px; color: var(--ink-2); background: none; border: none; padding: 2px 0;
+    font-weight: 650; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
   }
-  .locate:disabled { opacity: 0.5; }
-  footer {
-    text-align: center;
-    margin-top: 28px;
-    font-size: 12px;
-    color: var(--muted);
-  }
+  .locate:hover { text-decoration: underline; }
+  .locate:disabled { opacity: .5; cursor: default; }
   .ac-wrap { position: relative; }
   .ac-list {
-    position: absolute;
-    left: 0; right: 0; top: 100%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-    z-index: 20;
-    max-height: 260px;
-    overflow-y: auto;
-    display: none;
+    position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 10px; z-index: 20; max-height: 260px; overflow-y: auto;
+    display: none; box-shadow: var(--shadow);
   }
   .ac-list.open { display: block; }
-  .ac-item {
-    padding: 12px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    border-top: 1px solid #f0f0f0;
-  }
-  .ac-item:hover, .ac-item.active { background: #f3f3f3; }
+  .ac-item { padding: 11px 14px; font-size: 14px; cursor: pointer; border-top: 1px solid var(--surface-2); }
+  .ac-item:first-child { border-top: none; }
+  .ac-item:hover, .ac-item.active { background: var(--surface-2); }
 
-  .vehicles { display: flex; gap: 8px; margin-top: 6px; }
-  .vehicle {
-    flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 6px;
-    text-align: center;
-    cursor: pointer;
-    background: var(--card);
+  .vehicles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; padding: 0; border: 0; }
+  .vehicle { position: relative; }
+  .vehicle input { position: absolute; opacity: 0; pointer-events: none; }
+  .vehicle label {
+    margin: 0; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center;
+    cursor: pointer; background: var(--surface); display: block; transition: border-color .15s, background .15s;
   }
-  .vehicle.selected { border-color: var(--ink); background: #f3f3f3; }
-  .vehicle .icon { font-size: 20px; }
-  .vehicle .name { font-size: 12px; font-weight: 700; margin-top: 2px; }
-  .vehicle .seats { font-size: 11px; color: var(--muted); }
+  .vehicle input:checked + label { border-color: var(--ink); background: var(--surface-2); }
+  .vehicle input:focus-visible + label { outline: 3px solid var(--taxi); outline-offset: 2px; }
+  .vehicle .icon { font-size: 22px; line-height: 1.2; }
+  .vehicle .name { font-size: 13px; font-weight: 750; color: var(--ink); }
+  .vehicle .seats { font-size: 11px; color: var(--muted); font-weight: 500; }
 
   .price-box {
-    margin-top: 16px;
-    padding: 14px;
-    border-radius: 10px;
-    background: #f3f3f3;
-    display: none;
-    align-items: center;
-    justify-content: space-between;
+    margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--dark); color: var(--dark-ink);
+    display: none; align-items: center; justify-content: space-between; gap: 12px;
   }
   .price-box.visible { display: flex; }
-  .price-box .label { font-size: 13px; color: var(--muted); }
-  .price-box .amount { font-size: 20px; font-weight: 800; }
+  .price-box .label { font-size: 13px; opacity: .8; }
+  .price-box .label small { display: block; font-size: 11px; opacity: .75; }
+  .price-box .amount { font-size: 24px; font-weight: 850; letter-spacing: -.02em; }
+  .row2 { display: grid; gap: 0 12px; }
+  .submit {
+    width: 100%; margin-top: 20px; padding: 16px; border: none; border-radius: 12px;
+    background: var(--taxi); color: var(--taxi-ink); font-size: 17px; font-weight: 800; cursor: pointer;
+    font-family: inherit; transition: transform .05s, filter .15s;
+  }
+  .submit:hover { filter: brightness(.97); }
+  .submit:active { transform: translateY(1px); }
+  .submit:disabled { opacity: .55; cursor: default; }
+  .fine { font-size: 12px; color: var(--muted); text-align: center; margin: 10px 0 0; }
+  .msg { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: 14px; display: none; }
+  .msg.success { display: block; background: var(--success-bg); color: var(--success); }
+  .msg.error { display: block; background: var(--error-bg); color: var(--error); }
+
+  /* ---------- Sections ---------- */
+  section.block { padding: 48px 0; }
+  section.alt { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .section-head { max-width: 640px; margin-bottom: 26px; }
+  .section-head h2 { font-size: clamp(24px, 4.5vw, 34px); letter-spacing: -.02em; line-height: 1.15; margin: 0 0 8px; }
+  .section-head p { color: var(--muted); margin: 0; font-size: 16px; }
+  .grid { display: grid; gap: 14px; }
+  .feature { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  section.alt .feature { background: var(--bg); }
+  .feature .ico {
+    width: 42px; height: 42px; border-radius: 11px; background: var(--taxi); color: var(--taxi-ink);
+    display: grid; place-items: center; margin-bottom: 12px;
+  }
+  .feature h3 { font-size: 17px; margin: 0 0 4px; letter-spacing: -.01em; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .steps { counter-reset: s; display: grid; gap: 14px; padding: 0; margin: 0; list-style: none; }
+  .steps li { counter-increment: s; position: relative; padding: 18px 18px 18px 64px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .steps li::before {
+    content: counter(s); position: absolute; left: 18px; top: 18px; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--dark); color: var(--dark-ink); display: grid; place-items: center; font-weight: 800; font-size: 15px;
+  }
+  .steps h3 { margin: 4px 0 2px; font-size: 16px; }
+  .steps p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .zones { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; list-style: none; }
+  .zones li { background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 600; }
+  .zones-note { margin-top: 16px; color: var(--muted); font-size: 14px; }
+
+  .faq details { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 18px; margin-bottom: 10px; }
+  .faq summary { cursor: pointer; font-weight: 700; padding: 16px 28px 16px 0; list-style: none; position: relative; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; position: absolute; right: 0; top: 13px; font-size: 22px; font-weight: 500; color: var(--muted); }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin: 0 0 16px; color: var(--ink-2); }
+
+  .cta-band { background: var(--dark); color: var(--dark-ink); border-radius: 20px; padding: 32px 22px; text-align: center; }
+  .cta-band h2 { margin: 0 0 8px; font-size: clamp(22px, 4.5vw, 32px); letter-spacing: -.02em; }
+  .cta-band p { margin: 0 0 20px; opacity: .8; }
+  .cta-band .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .cta-band .btn { padding: 14px 22px; font-size: 16px; }
+
+  footer.site { padding: 32px 0 100px; color: var(--muted); font-size: 14px; }
+  footer.site .wrap { display: grid; gap: 16px; }
+  footer.site a { text-decoration: none; }
+  footer.site a:hover { text-decoration: underline; }
+  footer.site .fl { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+
+  /* Barre d'action fixe sur mobile */
+  .mobile-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; display: flex; gap: 8px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(250,249,246,.96); border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transform: translateY(110%); transition: transform .2s ease;
+  }
+  .mobile-bar.show { transform: none; }
+  .mobile-bar .btn { flex: 1; padding: 13px; font-size: 15px; }
+
+  @media (min-width: 560px) {
+    .row2 { grid-template-columns: 1fr 1fr; }
+    .grid.cols { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 900px) {
+    nav.links { display: flex; }
+    .hero { padding: 56px 0 64px; }
+    .hero .wrap { grid-template-columns: 1.05fr 1fr; gap: 56px; }
+    .book { padding: 26px; position: sticky; top: 80px; }
+    .grid.cols { grid-template-columns: repeat(3, 1fr); }
+    .steps { grid-template-columns: repeat(3, 1fr); }
+    .mobile-bar { display: none; }
+    footer.site { padding-bottom: 40px; }
+    footer.site .wrap { grid-template-columns: 1fr auto; align-items: center; }
+    section.block { padding: 72px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .mobile-bar { transition: none; }
+  }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">
-      <span class="emoji">🚕</span>
-      <h1>Taxi J7</h1>
+
+<header class="top">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="Taxi J7 Rive-Sud, accueil">
+      <span class="logo-mark" aria-hidden="true">J7</span>
+      <span>Taxi J7<small>Rive-Sud</small></span>
+    </a>
+    <nav class="links" aria-label="Navigation principale">
+      <a href="#avantages">Avantages</a>
+      <a href="#fonctionnement">Comment ça marche</a>
+      <a href="#services">Services</a>
+      <a href="#zones">Secteurs</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="head-actions">
+      <a class="btn btn-ghost" data-phone-only data-phone-link hidden aria-label="Appeler Taxi J7">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+        <span data-phone-text>Appeler</span>
+      </a>
+      <a class="btn btn-dark" href="#reserver">Réserver</a>
     </div>
-
-    <h2>Réservez votre taxi</h2>
-    <p class="subtitle">Votre demande est envoyée directement au répartiteur. Un chauffeur vous sera assigné sous peu.</p>
-
-    <form id="booking-form">
-      <label for="pickup">Adresse de prise en charge</label>
-      <div class="ac-wrap">
-        <input id="pickup" name="pickupAddress" type="text" required autocomplete="off" placeholder="Tapez l'adresse..." />
-        <div class="ac-list" id="pickup-list"></div>
-      </div>
-      <button type="button" class="locate" id="locate-btn">📍 Utiliser ma position</button>
-
-      <label for="destination">Destination</label>
-      <div class="ac-wrap">
-        <input id="destination" name="destinationAddress" type="text" required autocomplete="off" placeholder="Tapez l'adresse..." />
-        <div class="ac-list" id="destination-list"></div>
-      </div>
-
-      <label>Type de véhicule</label>
-      <div class="vehicles" id="vehicles">
-        <div class="vehicle selected" data-vehicle="STANDARD">
-          <div class="icon">🚗</div>
-          <div class="name">Standard</div>
-          <div class="seats">1-4 places</div>
-        </div>
-        <div class="vehicle" data-vehicle="VAN">
-          <div class="icon">🚐</div>
-          <div class="name">Van</div>
-          <div class="seats">5-7 places</div>
-        </div>
-        <div class="vehicle" data-vehicle="PREMIUM">
-          <div class="icon">⭐</div>
-          <div class="name">Premium</div>
-          <div class="seats">1-4 places</div>
-        </div>
-      </div>
-
-      <div class="price-box" id="price-box">
-        <span class="label">Prix estimé</span>
-        <span class="amount" id="price-amount">—</span>
-      </div>
-
-      <label for="phone">Numéro de téléphone</label>
-      <input id="phone" name="clientPhone" type="tel" required autocomplete="tel" placeholder="Ex: 0612345678" />
-
-      <label for="name">Votre nom (optionnel)</label>
-      <input id="name" name="clientName" type="text" autocomplete="name" />
-
-      <label for="notes">Notes (optionnel)</label>
-      <textarea id="notes" name="notes" rows="2" placeholder="Ex: bagages, code d'entrée..."></textarea>
-
-      <button type="submit" id="submit-btn">Demander un taxi</button>
-    </form>
-
-    <div class="msg" id="msg"></div>
-
-    <footer>Besoin d'aide ? Appelez-nous directement.</footer>
   </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span> Service disponible 24 h/24, 7 j/7</span>
+        <h1>Votre taxi sur la <span class="hl" style="white-space:nowrap">Rive-Sud</span>, en quelques clics.</h1>
+        <p class="lead">Réservez en ligne en 30 secondes, voyez le prix estimé avant de confirmer et suivez votre chauffeur en temps réel jusqu'à votre porte.</p>
+        <ul class="trust">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Sans application à installer</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Prix estimé immédiat</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Chauffeurs locaux</li>
+        </ul>
+      </div>
+
+      <div class="book" id="reserver">
+        <h2>Réservez votre taxi</h2>
+        <p class="sub">Votre demande est transmise directement au répartiteur. Un chauffeur vous est assigné en quelques minutes.</p>
+
+        <form id="booking-form" novalidate>
+          <div class="route">
+            <div class="stop">
+              <label for="pickup">Adresse de prise en charge</label>
+              <div class="ac-wrap">
+                <input id="pickup" name="pickupAddress" type="text" required autocomplete="off" placeholder="Ex : 825 rue Saint-Laurent O, Longueuil"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pickup-list" />
+                <div class="ac-list" id="pickup-list" role="listbox" aria-label="Suggestions d'adresses de départ"></div>
+              </div>
+              <button type="button" class="locate" id="locate-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                <span>Utiliser ma position</span>
+              </button>
+            </div>
+
+            <div class="stop dest">
+              <label for="destination">Destination</label>
+              <div class="ac-wrap">
+                <input id="destination" name="destinationAddress" type="text" required autocomplete="off" placeholder="Ex : Aéroport Montréal-Trudeau"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="destination-list" />
+                <div class="ac-list" id="destination-list" role="listbox" aria-label="Suggestions de destinations"></div>
+              </div>
+            </div>
+          </div>
+
+          <fieldset class="vehicles" id="vehicles">
+            <legend style="font-size:13px;font-weight:650;color:var(--ink-2);margin:14px 0 6px;padding:0;grid-column:1/-1">Type de véhicule</legend>
+            <div class="vehicle">
+              <input type="radio" name="vehicle" id="v-standard" value="STANDARD" checked />
+              <label for="v-standard"><div class="icon" aria-hidden="true">🚗</div><div class="name">Standard</div><div class="seats">1 à 4 places</div></label>
+            </div>
+            <div class="vehicle">
+              <input type="radio" name="vehicle" id="v-van" value="VAN" />
+              <label for="v-van"><div class="icon" aria-hidden="true">🚐</div><div class="name">Fourgonnette</div><div class="seats">5 à 7 places</div></label>
+            </div>
+            <div class="vehicle">
+              <input type="radio" name="vehicle" id="v-premium" value="PREMIUM" />
+              <label for="v-premium"><div class="icon" aria-hidden="true">⭐</div><div class="name">Premium</div><div class="seats">1 à 4 places</div></label>
+            </div>
+          </fieldset>
+
+          <div class="price-box" id="price-box" aria-live="polite">
+            <span class="label">Prix estimé<small id="price-detail">Estimation indicative, selon le trajet réel</small></span>
+            <span class="amount" id="price-amount">—</span>
+          </div>
+
+          <div class="row2">
+            <div>
+              <label for="phone">Téléphone</label>
+              <input id="phone" name="clientPhone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="Ex : 514 555-1234" />
+            </div>
+            <div>
+              <label for="name">Nom <span class="opt">(optionnel)</span></label>
+              <input id="name" name="clientName" type="text" autocomplete="name" />
+            </div>
+          </div>
+
+          <label for="notes">Notes pour le chauffeur <span class="opt">(optionnel)</span></label>
+          <textarea id="notes" name="notes" rows="2" maxlength="500" placeholder="Ex : bagages, code d'entrée, siège d'enfant…"></textarea>
+
+          <button type="submit" class="submit" id="submit-btn">Demander un taxi</button>
+          <p class="fine">Aucun paiement en ligne. Vous payez directement au chauffeur.</p>
+        </form>
+
+        <div class="msg" id="msg" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt" id="avantages">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Pourquoi choisir Taxi J7 ?</h2>
+        <p>Un service de taxi local, simple et transparent, pensé pour les gens de la Rive-Sud.</p>
+      </div>
+      <div class="grid cols">
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <h3>Rapide</h3>
+          <p>Votre course est attribuée automatiquement au chauffeur disponible le plus proche de vous.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <h3>Suivi en temps réel</h3>
+          <p>Après la réservation, une page de suivi vous montre où en est votre course et qui est votre chauffeur.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <h3>Prix transparent</h3>
+          <p>Voyez une estimation du prix avant même de confirmer votre demande. Pas de mauvaise surprise.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="fonctionnement">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Comment ça marche</h2>
+        <p>Trois étapes, aucune application à télécharger.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Entrez votre trajet</h3><p>Adresse de départ, destination et type de véhicule. Le prix estimé s'affiche aussitôt.</p></li>
+        <li><h3>Un chauffeur est assigné</h3><p>Le répartiteur envoie votre course au chauffeur le plus proche, généralement en quelques minutes.</p></li>
+        <li><h3>Suivez votre course</h3><p>Vous êtes redirigé vers une page de suivi : statut, chauffeur et arrivée, en direct.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block alt" id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Nos services</h2>
+        <p>Pour vos déplacements du quotidien comme pour les occasions spéciales.</p>
+      </div>
+      <div class="grid cols">
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div>
+          <h3>Aéroport Montréal-Trudeau</h3>
+          <p>Transferts vers et depuis YUL. Choisissez la fourgonnette si vous avez beaucoup de bagages.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16M12 3v8M8 19l-2 3M16 19l2 3"/></svg></div>
+          <h3>Gares, métro et REM</h3>
+          <p>Rendez-vous au métro Longueuil, au REM ou à la gare sans vous soucier du stationnement.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+          <h3>Rendez-vous médicaux</h3>
+          <p>Hôpitaux, cliniques et CLSC de la Rive-Sud et de Montréal, à l'aller comme au retour.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+          <h3>Déplacements d'affaires</h3>
+          <p>Optez pour le véhicule Premium pour vos clients ou vos réunions importantes.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div>
+          <h3>Groupes</h3>
+          <p>Jusqu'à 7 passagers dans nos fourgonnettes, idéal pour les sorties en famille ou entre amis.</p>
+        </div>
+        <div class="feature">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div>
+          <h3>Soirs et fins de semaine</h3>
+          <p>Retour de soirée, quart de nuit ou départ très tôt : on est là quand vous en avez besoin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="zones">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Secteurs desservis</h2>
+        <p>Nous couvrons toute la Rive-Sud de Montréal, et vous conduisons partout dans la grande région.</p>
+      </div>
+      <ul class="zones">
+        <li>Longueuil</li><li>Vieux-Longueuil</li><li>Saint-Hubert</li><li>Greenfield Park</li>
+        <li>Brossard</li><li>Saint-Lambert</li><li>Boucherville</li><li>La Prairie</li>
+        <li>Candiac</li><li>Saint-Bruno-de-Montarville</li><li>Varennes</li><li>Montréal</li>
+      </ul>
+      <p class="zones-note">Votre ville n'est pas dans la liste ? Faites quand même une demande : le répartiteur vous confirmera la disponibilité.</p>
+    </div>
+  </section>
+
+  <section class="block alt" id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Questions fréquentes</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Dois-je installer une application ?</summary>
+          <p>Non. Tout se fait depuis ce site, sur téléphone comme sur ordinateur. Après votre demande, vous recevez une page de suivi à garder ouverte.</p>
+        </details>
+        <details>
+          <summary>Le prix affiché est-il le prix final ?</summary>
+          <p>C'est une estimation calculée selon la distance et le type de véhicule. Le prix final peut varier selon le trajet réel, la circulation et les frais applicables.</p>
+        </details>
+        <details>
+          <summary>Comment est-ce que je paie ?</summary>
+          <p>Vous payez directement au chauffeur à la fin de la course. Aucun paiement n'est demandé sur le site.</p>
+        </details>
+        <details>
+          <summary>Combien de temps avant l'arrivée du chauffeur ?</summary>
+          <p>Votre demande est envoyée au chauffeur disponible le plus proche. Le délai dépend de l'heure et du secteur ; vous le suivez en direct sur la page de suivi.</p>
+        </details>
+        <details>
+          <summary>Puis-je réserver pour quelqu'un d'autre ?</summary>
+          <p>Oui. Inscrivez l'adresse de la personne et un numéro de téléphone où le chauffeur pourra la joindre.</p>
+        </details>
+        <details>
+          <summary>Que faire si j'ai beaucoup de bagages ou un groupe ?</summary>
+          <p>Choisissez « Fourgonnette » (5 à 7 places) et précisez vos besoins dans les notes pour le chauffeur.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>Besoin d'un taxi maintenant ?</h2>
+        <p>Réservez en ligne ou appelez-nous, on s'occupe du reste.</p>
+        <div class="actions">
+          <a class="btn btn-taxi" href="#reserver">Réserver en ligne</a>
+          <a class="btn btn-ghost" data-phone-only data-phone-link hidden>Appeler <span data-phone-text></span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div>
+      <strong style="color:var(--ink)">Taxi J7 Rive-Sud</strong><br />
+      Service de taxi sur la Rive-Sud de Montréal · 24 h/24, 7 j/7
+      <span data-phone-only hidden> · <a data-phone-link><span data-phone-text></span></a></span>
+    </div>
+    <div class="fl">
+      <a href="#reserver">Réserver</a>
+      <a href="#services">Services</a>
+      <a href="#faq">FAQ</a>
+      <a href="/driver">Espace chauffeur</a>
+    </div>
+    <div style="font-size:12px">© <span id="year"></span> Taxi J7 Rive-Sud. Tous droits réservés.</div>
+  </div>
+</footer>
+
+<div class="mobile-bar" id="mobile-bar">
+  <a class="btn btn-ghost" data-phone-only data-phone-link hidden>Appeler</a>
+  <a class="btn btn-taxi" href="#reserver">Réserver un taxi</a>
+</div>
 
 <script>
+  // ============================================================
+  // CONFIGURATION — indiquez ici le numéro de téléphone de Taxi J7
+  // (ex : "450 555-1234"). Laissé vide, les boutons « Appeler »
+  // restent masqués.
+  // ============================================================
+  const BUSINESS_PHONE = "";
+
+  (function setupPhone() {
+    const digits = BUSINESS_PHONE.replace(/[^\d+]/g, "");
+    if (!digits) return;
+    const tel = "tel:" + (digits.startsWith("+") ? digits : "+1" + digits.replace(/^1/, ""));
+    document.querySelectorAll("[data-phone-only]").forEach((el) => (el.hidden = false));
+    document.querySelectorAll("[data-phone-link]").forEach((el) => (el.href = tel));
+    document.querySelectorAll("[data-phone-text]").forEach((el) => (el.textContent = BUSINESS_PHONE));
+  })();
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Barre d'action mobile : visible une fois le formulaire dépassé
+  (function setupMobileBar() {
+    const bar = document.getElementById("mobile-bar");
+    const book = document.getElementById("reserver");
+    if (!("IntersectionObserver" in window)) { bar.classList.add("show"); return; }
+    new IntersectionObserver(([entry]) => {
+      bar.classList.toggle("show", !entry.isIntersecting && entry.boundingClientRect.top < 0);
+    }).observe(book);
+  })();
+
   const form = document.getElementById("booking-form");
   const submitBtn = document.getElementById("submit-btn");
   const msg = document.getElementById("msg");
   const locateBtn = document.getElementById("locate-btn");
+  const locateLabel = locateBtn.querySelector("span");
   const pickupInput = document.getElementById("pickup");
   const priceBox = document.getElementById("price-box");
   const priceAmount = document.getElementById("price-amount");
+  const priceDetail = document.getElementById("price-detail");
 
   function showMsg(text, kind) {
     msg.textContent = text;
@@ -241,12 +611,9 @@
   let pickupCoords = null;
   let destinationCoords = null;
 
-  document.getElementById("vehicles").addEventListener("click", (e) => {
-    const card = e.target.closest(".vehicle");
-    if (!card) return;
-    document.querySelectorAll(".vehicle").forEach((el) => el.classList.remove("selected"));
-    card.classList.add("selected");
-    selectedVehicle = card.dataset.vehicle;
+  document.getElementById("vehicles").addEventListener("change", (e) => {
+    if (e.target.name !== "vehicle") return;
+    selectedVehicle = e.target.value;
     updatePriceEstimate();
   });
 
@@ -261,14 +628,19 @@
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
+  function estimatePrice() {
+    const km = haversineKm(pickupCoords, destinationCoords);
+    return { km, price: BASE_FARE + km * PER_KM * VEHICLE_MULTIPLIER[selectedVehicle] };
+  }
+
   function updatePriceEstimate() {
     if (!pickupCoords || !destinationCoords) {
       priceBox.classList.remove("visible");
       return;
     }
-    const km = haversineKm(pickupCoords, destinationCoords);
-    const price = BASE_FARE + km * PER_KM * VEHICLE_MULTIPLIER[selectedVehicle];
-    priceAmount.textContent = "~" + price.toFixed(0) + " $";
+    const { km, price } = estimatePrice();
+    priceAmount.textContent = "≈ " + price.toFixed(0) + " $";
+    priceDetail.textContent = "Environ " + km.toFixed(1).replace(".", ",") + " km à vol d'oiseau · indicatif";
     priceBox.classList.add("visible");
   }
 
@@ -288,6 +660,9 @@
     const list = document.getElementById(listId);
     let timer = null;
     let justPicked = false;
+    let items = [];
+    let active = -1;
+    let reqSeq = 0;
 
     async function fetchSuggestions(q) {
       const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(q) +
@@ -308,23 +683,52 @@
       } catch { return []; }
     }
 
-    function render(items) {
+    function close() {
+      list.classList.remove("open");
+      input.setAttribute("aria-expanded", "false");
+      active = -1;
+    }
+
+    function pick(item) {
+      justPicked = true;
+      input.value = item.label;
+      onPick({ lat: item.lat, lon: item.lon });
+      close();
+    }
+
+    function highlight(i) {
+      active = i;
+      [...list.children].forEach((el, idx) => {
+        el.classList.toggle("active", idx === i);
+        el.setAttribute("aria-selected", idx === i ? "true" : "false");
+      });
+      if (i >= 0) {
+        input.setAttribute("aria-activedescendant", listId + "-opt-" + i);
+        list.children[i].scrollIntoView({ block: "nearest" });
+      } else {
+        input.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function render(newItems) {
+      items = newItems;
       list.innerHTML = "";
-      if (!items.length) { list.classList.remove("open"); return; }
-      for (const item of items) {
+      active = -1;
+      if (!items.length) { close(); return; }
+      items.forEach((item, i) => {
         const div = document.createElement("div");
         div.className = "ac-item";
+        div.id = listId + "-opt-" + i;
+        div.setAttribute("role", "option");
         div.textContent = "📍 " + item.label;
         div.addEventListener("mousedown", (e) => {
           e.preventDefault();
-          justPicked = true;
-          input.value = item.label;
-          onPick({ lat: item.lat, lon: item.lon });
-          list.classList.remove("open");
+          pick(item);
         });
         list.appendChild(div);
-      }
+      });
       list.classList.add("open");
+      input.setAttribute("aria-expanded", "true");
     }
 
     input.addEventListener("input", () => {
@@ -332,12 +736,23 @@
       onPick(null);
       const q = input.value.trim();
       if (timer) clearTimeout(timer);
-      if (q.length < 3) { list.classList.remove("open"); return; }
+      if (q.length < 3) { close(); return; }
+      const seq = ++reqSeq;
       timer = setTimeout(async () => {
-        render(await fetchSuggestions(q));
-      }, 350);
+        const res = await fetchSuggestions(q);
+        if (seq === reqSeq) render(res); // ignore les réponses périmées
+      }, 300);
     });
-    input.addEventListener("blur", () => setTimeout(() => list.classList.remove("open"), 150));
+
+    input.addEventListener("keydown", (e) => {
+      if (!list.classList.contains("open") || !items.length) return;
+      if (e.key === "ArrowDown") { e.preventDefault(); highlight((active + 1) % items.length); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); highlight((active - 1 + items.length) % items.length); }
+      else if (e.key === "Enter" && active >= 0) { e.preventDefault(); pick(items[active]); }
+      else if (e.key === "Escape") { close(); }
+    });
+
+    input.addEventListener("blur", () => setTimeout(close, 150));
   }
 
   setupAutocomplete("pickup", "pickup-list", (coords) => {
@@ -349,45 +764,73 @@
     updatePriceEstimate();
   });
 
+  // Géolocalisation + conversion en adresse lisible (pour le chauffeur)
+  async function reverseGeocode(lat, lon) {
+    try {
+      const res = await fetch("https://photon.komoot.io/reverse?lat=" + lat + "&lon=" + lon + "&lang=fr");
+      const data = await res.json();
+      const f = data.features && data.features[0];
+      return f ? formatAddress(f.properties || {}) : "";
+    } catch { return ""; }
+  }
+
   locateBtn.addEventListener("click", () => {
     if (!navigator.geolocation) {
       showMsg("La géolocalisation n'est pas disponible sur cet appareil.", "error");
       return;
     }
     locateBtn.disabled = true;
-    locateBtn.textContent = "Localisation en cours...";
+    locateLabel.textContent = "Localisation en cours…";
+    const reset = () => {
+      locateBtn.disabled = false;
+      locateLabel.textContent = "Utiliser ma position";
+    };
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const { latitude, longitude } = pos.coords;
-        pickupInput.value = latitude.toFixed(5) + ", " + longitude.toFixed(5);
         pickupCoords = { lat: latitude, lon: longitude };
         updatePriceEstimate();
-        locateBtn.disabled = false;
-        locateBtn.textContent = "📍 Utiliser ma position";
+        const address = await reverseGeocode(latitude, longitude);
+        pickupInput.value = address || latitude.toFixed(5) + ", " + longitude.toFixed(5);
+        reset();
       },
       () => {
         showMsg("Impossible d'obtenir votre position. Entrez l'adresse manuellement.", "error");
-        locateBtn.disabled = false;
-        locateBtn.textContent = "📍 Utiliser ma position";
-      }
+        reset();
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.className = "msg";
+
+    // Validation lisible avant l'envoi
+    const pickup = pickupInput.value.trim();
+    const dest = document.getElementById("destination").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    if (!pickup) { showMsg("Indiquez l'adresse de prise en charge.", "error"); pickupInput.focus(); return; }
+    if (!dest) { showMsg("Indiquez votre destination.", "error"); document.getElementById("destination").focus(); return; }
+    if (phone.replace(/\D/g, "").length < 10) {
+      showMsg("Entrez un numéro de téléphone valide (10 chiffres) pour que le chauffeur puisse vous joindre.", "error");
+      document.getElementById("phone").focus();
+      return;
+    }
+
     submitBtn.disabled = true;
-    submitBtn.textContent = "Envoi en cours...";
+    submitBtn.textContent = "Envoi en cours…";
 
     const data = Object.fromEntries(new FormData(form).entries());
+    delete data.vehicle;
+    for (const k of ["clientName", "notes"]) if (!data[k] || !data[k].trim()) delete data[k];
     data.vehicleType = selectedVehicle;
     if (pickupCoords) {
       data.pickupLat = pickupCoords.lat;
       data.pickupLng = pickupCoords.lon;
     }
     if (pickupCoords && destinationCoords) {
-      const km = haversineKm(pickupCoords, destinationCoords);
-      data.estimatedPrice = Math.round(BASE_FARE + km * PER_KM * VEHICLE_MULTIPLIER[selectedVehicle]);
+      data.estimatedPrice = Math.round(estimatePrice().price);
     }
 
     try {
@@ -400,7 +843,7 @@
       if (!res.ok) {
         throw new Error(body.error || "Une erreur est survenue");
       }
-      showMsg("Demande envoyée ! Redirection vers le suivi de votre course...", "success");
+      showMsg("Demande envoyée ! Redirection vers le suivi de votre course…", "success");
       form.reset();
       window.location.href = "/suivi.html?id=" + encodeURIComponent(body.id);
       return;
